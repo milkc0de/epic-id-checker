@@ -1,0 +1,1127 @@
+<!doctype html>
+<html lang="ja">
+<head>
+ <meta charset="utf-8" />
+ <meta name="viewport" content="width=device-width, initial-scale=1" />
+ <title>Epic ID 文字チェッカー</title>
+ <style>
+  :root {
+   --bg: #f6f7fb;
+   --panel: #ffffff;
+   --text: #202333;
+   --muted: #6b7280;
+   --line: #e5e7eb;
+   --safe-bg: #e9f8ef;
+   --safe-bd: #b9e7c7;
+   --safe-tx: #176a35;
+   --reported-bg: #fff6df;
+   --reported-bd: #f0d58f;
+   --reported-tx: #7a5200;
+   --single-bg: #fff0e6;
+   --single-bd: #efc0a0;
+   --single-tx: #8a3f00;
+   --risk-bg: #fdecec;
+   --risk-bd: #efb4b4;
+   --risk-tx: #9f1d1d;
+   --unknown-bg: #eef2ff;
+   --unknown-bd: #c7d2fe;
+   --unknown-tx: #3730a3;
+   --shadow: 0 12px 32px rgba(17, 24, 39, .08);
+   --radius: 18px;
+  }
+
+  * {
+   box-sizing: border-box;
+  }
+
+  body {
+   margin: 0;
+   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+   background:
+    radial-gradient(circle at top left, rgba(115, 120, 255, .12), transparent 34rem),
+    radial-gradient(circle at top right, rgba(255, 180, 120, .12), transparent 28rem),
+    var(--bg);
+   color: var(--text);
+   line-height: 1.65;
+  }
+
+  .wrap {
+   max-width: 1120px;
+   margin: 0 auto;
+   padding: 28px 16px 56px;
+  }
+
+  header {
+   margin-bottom: 18px;
+  }
+
+  h1 {
+   font-size: clamp(26px, 4vw, 42px);
+   margin: 0 0 8px;
+   letter-spacing: .02em;
+  }
+
+  .lead {
+   color: var(--muted);
+   margin: 0;
+   max-width: 780px;
+  }
+
+  .notice {
+   margin-top: 14px;
+   padding: 12px 14px;
+   border: 1px solid var(--line);
+   border-radius: 14px;
+   background: rgba(255, 255, 255, .7);
+   color: #4b5563;
+   font-size: 14px;
+  }
+
+  .grid {
+   display: grid;
+   grid-template-columns: minmax(0, 1fr) 360px;
+   gap: 18px;
+   align-items: start;
+  }
+
+  @media (max-width: 900px) {
+   .grid {
+    grid-template-columns: 1fr;
+   }
+  }
+
+  .card {
+   background: var(--panel);
+   border: 1px solid rgba(229, 231, 235, .8);
+   border-radius: var(--radius);
+   box-shadow: var(--shadow);
+   padding: 18px;
+  }
+
+  .card + .card {
+   margin-top: 18px;
+  }
+
+  .card h2 {
+   font-size: 18px;
+   margin: 0 0 12px;
+  }
+
+  .input-row {
+   display: flex;
+   gap: 10px;
+   align-items: stretch;
+  }
+
+  @media (max-width: 560px) {
+   .input-row {
+    flex-direction: column;
+   }
+  }
+
+  input[type="text"], .search-input {
+   width: 100%;
+   border: 1px solid #d1d5db;
+   border-radius: 14px;
+   font-size: 22px;
+   padding: 13px 14px;
+   outline: none;
+   background: #fff;
+   color: var(--text);
+  }
+
+  input[type="text"]:focus, .search-input:focus {
+   border-color: #a5b4fc;
+   box-shadow: 0 0 0 4px rgba(165, 180, 252, .28);
+  }
+
+  .button-row {
+   display: flex;
+   flex-wrap: wrap;
+   gap: 8px;
+   margin-top: 12px;
+  }
+
+  button {
+   border: 1px solid #d1d5db;
+   background: #fff;
+   color: #111827;
+   border-radius: 999px;
+   padding: 9px 12px;
+   cursor: pointer;
+   font-weight: 700;
+   transition: transform .06s ease, box-shadow .12s ease, background .12s ease;
+  }
+
+  button:hover {
+   background: #f9fafb;
+   box-shadow: 0 4px 16px rgba(17, 24, 39, .08);
+  }
+
+  button:active {
+   transform: translateY(1px);
+  }
+
+  .primary {
+   background: #111827;
+   color: white;
+   border-color: #111827;
+  }
+
+  .primary:hover {
+   background: #1f2937;
+  }
+
+  .danger {
+   color: #991b1b;
+   border-color: #fecaca;
+   background: #fff7f7;
+  }
+
+  .meta {
+   display: flex;
+   flex-wrap: wrap;
+   gap: 8px;
+   margin-top: 12px;
+   color: var(--muted);
+   font-size: 14px;
+  }
+
+  .pill {
+   display: inline-flex;
+   align-items: center;
+   gap: 6px;
+   border-radius: 999px;
+   border: 1px solid var(--line);
+   padding: 6px 10px;
+   background: #fff;
+   font-weight: 700;
+  }
+
+  .status {
+   margin-top: 14px;
+   padding: 12px 14px;
+   border-radius: 14px;
+   font-weight: 800;
+  }
+
+  .status.safe {
+   background: var(--safe-bg);
+   color: var(--safe-tx);
+   border: 1px solid var(--safe-bd);
+  }
+
+  .status.reported {
+   background: var(--reported-bg);
+   color: var(--reported-tx);
+   border: 1px solid var(--reported-bd);
+  }
+
+  .status.single {
+   background: var(--single-bg);
+   color: var(--single-tx);
+   border: 1px solid var(--single-bd);
+  }
+
+  .status.risk {
+   background: var(--risk-bg);
+   color: var(--risk-tx);
+   border: 1px solid var(--risk-bd);
+  }
+
+  .char-strip {
+   display: flex;
+   flex-wrap: wrap;
+   gap: 8px;
+   margin-top: 14px;
+  }
+
+  .chip {
+   display: inline-flex;
+   align-items: center;
+   gap: 6px;
+   border-radius: 12px;
+   padding: 8px 10px;
+   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+   border: 1px solid var(--line);
+   background: #fff;
+  }
+
+  .chip.safe {
+   background: var(--safe-bg);
+   border-color: var(--safe-bd);
+   color: var(--safe-tx);
+  }
+
+  .chip.reported {
+   background: var(--reported-bg);
+   border-color: var(--reported-bd);
+   color: var(--reported-tx);
+  }
+
+  .chip.single {
+   background: var(--single-bg);
+   border-color: var(--single-bd);
+   color: var(--single-tx);
+  }
+
+  .chip.risk, .chip.invisible, .chip.blocked {
+   background: var(--risk-bg);
+   border-color: var(--risk-bd);
+   color: var(--risk-tx);
+  }
+
+
+  .chip.unverified {
+   background: var(--unknown-bg);
+   border-color: var(--unknown-bd);
+   color: var(--unknown-tx);
+  }
+
+  .char-card.unverified {
+   background: var(--unknown-bg);
+   border-color: var(--unknown-bd);
+  }
+
+  .chip.unknown {
+   background: var(--unknown-bg);
+   border-color: var(--unknown-bd);
+   color: var(--unknown-tx);
+  }
+
+  .analysis-table {
+   width: 100%;
+   border-collapse: collapse;
+   margin-top: 14px;
+   overflow: hidden;
+   border-radius: 14px;
+   font-size: 14px;
+  }
+
+  .analysis-table th, .analysis-table td {
+   border-bottom: 1px solid var(--line);
+   padding: 9px 8px;
+   text-align: left;
+   vertical-align: top;
+  }
+
+  .analysis-table th {
+   color: #4b5563;
+   background: #f9fafb;
+   font-size: 13px;
+  }
+
+  .analysis-table tr:last-child td {
+   border-bottom: none;
+  }
+
+  .tabs {
+   display: flex;
+   flex-wrap: wrap;
+   gap: 8px;
+   margin-bottom: 12px;
+  }
+
+  .tab {
+   font-size: 13px;
+   padding: 8px 10px;
+  }
+
+  .tab.active {
+   background: #111827;
+   color: #fff;
+   border-color: #111827;
+  }
+
+  .palette {
+   display: grid;
+   grid-template-columns: repeat(auto-fill, minmax(74px, 1fr));
+   gap: 9px;
+   margin-top: 12px;
+  }
+
+  .char-card {
+   border: 1px solid var(--line);
+   border-radius: 14px;
+   padding: 10px 8px;
+   background: #fff;
+   cursor: pointer;
+   min-height: 82px;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+   gap: 4px;
+   text-align: center;
+  }
+
+  .char-card:hover {
+   box-shadow: 0 8px 20px rgba(17, 24, 39, .08);
+   transform: translateY(-1px);
+  }
+
+  .char-card .big {
+   font-size: 26px;
+   line-height: 1;
+   font-family: system-ui, "Noto Sans JP", sans-serif;
+   min-height: 28px;
+  }
+
+  .char-card .code {
+   font-size: 11px;
+   color: var(--muted);
+   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  .char-card.safe {
+   background: var(--safe-bg);
+   border-color: var(--safe-bd);
+  }
+
+  .char-card.reported {
+   background: var(--reported-bg);
+   border-color: var(--reported-bd);
+  }
+
+  .char-card.single {
+   background: var(--single-bg);
+   border-color: var(--single-bd);
+  }
+
+  .char-card.risk, .char-card.invisible {
+   background: var(--risk-bg);
+   border-color: var(--risk-bd);
+  }
+
+  .copy-block {
+   width: 100%;
+   min-height: 92px;
+   resize: vertical;
+   border: 1px solid var(--line);
+   border-radius: 14px;
+   padding: 12px;
+   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+   font-size: 16px;
+   line-height: 1.6;
+   background: #fafafa;
+  }
+
+  details {
+   border: 1px solid var(--line);
+   border-radius: 14px;
+   padding: 10px 12px;
+   background: #fff;
+   margin-top: 10px;
+  }
+
+  summary {
+   cursor: pointer;
+   font-weight: 800;
+  }
+
+  .small {
+   font-size: 13px;
+   color: var(--muted);
+  }
+
+  .toast {
+   position: fixed;
+   left: 50%;
+   bottom: 22px;
+   transform: translateX(-50%);
+   background: #111827;
+   color: white;
+   padding: 10px 14px;
+   border-radius: 999px;
+   box-shadow: var(--shadow);
+   opacity: 0;
+   pointer-events: none;
+   transition: opacity .18s ease, transform .18s ease;
+   z-index: 50;
+   font-weight: 800;
+  }
+
+  .toast.show {
+   opacity: 1;
+   transform: translateX(-50%) translateY(-4px);
+  }
+
+  .legend {
+   display: grid;
+   gap: 8px;
+   margin: 0;
+   padding: 0;
+   list-style: none;
+  }
+
+  .legend li {
+   display: flex;
+   gap: 8px;
+   align-items: flex-start;
+   color: #4b5563;
+   font-size: 14px;
+  }
+ 
+    .credit {
+      margin-top: 28px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .credit a {
+      color: inherit;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .credit a:hover {
+      text-decoration: underline;
+    }
+
+  </style>
+</head>
+<body>
+ <div class="wrap">
+  <header>
+   <h1>Epic ID 文字チェッカー 🎮</h1>
+   <p class="lead">Fortnite / Epic ID向けに、通りやすそうベースの特殊文字候補だけをクリックしてIDを組み立て、1文字ずつ判定できます。普通文字・ツ・キリル文字は一覧に出しません。</p>
+   <div class="notice">
+    Epic公式の完全ホワイトリストではありません。デフォルトでは全候補をまとめて表示します。タブは見た目で絞り込みたい時だけ使います。普通のASCII英数字・普通のかな/カナ・全角英数字・ツ・キリル文字は候補一覧には出さず、入力時だけ判定します。
+   </div>
+  </header>
+
+  <div class="grid">
+   <main>
+    <section class="card">
+     <h2>作成中のEpic ID</h2>
+     <div class="input-row">
+      <input id="nameInput" type="text" placeholder="例: ΨΛǃᴥ" autocomplete="off" spellcheck="false" />
+      <button id="copyNameBtn" class="primary">コピー</button>
+     </div>
+
+     <div class="meta">
+      <span id="lengthPill" class="pill">0 / 16文字</span>
+      <span id="categoryPill" class="pill">未入力</span>
+     </div>
+
+     <div id="statusBox" class="status risk">Epic IDを入力するか、下の文字パレットから追加してください。</div>
+
+     <div class="button-row">
+      <button id="clearBtn">クリア</button>
+      <button id="keepSafeBtn">安全寄りだけ残す</button>
+      <button id="removeRiskBtn">非推奨を除去</button>
+      <button id="sampleBtn">サンプル投入</button>
+     </div>
+
+     <div id="charStrip" class="char-strip"></div>
+
+     <table class="analysis-table" aria-label="1文字ずつ判定">
+      <thead>
+       <tr>
+        <th>文字</th>
+        <th>Unicode</th>
+        <th>判定</th>
+        <th>メモ</th>
+       </tr>
+      </thead>
+      <tbody id="analysisBody"></tbody>
+     </table>
+    </section>
+
+    <section class="card">
+     <h2>文字パレット</h2>
+     <input id="searchInput" class="search-input" type="text" placeholder="文字・Unicode・カテゴリで検索" autocomplete="off" spellcheck="false" />
+
+     <div id="tabs" class="tabs"></div>
+     <div id="palette" class="palette"></div>
+    </section>
+
+    <section class="card">
+     <h2>カテゴリ別コピペ欄</h2>
+     <p class="small">特殊文字をまとめてコピーしたい人向けです。特殊文字候補と、上付きアルファベット候補を分けて表示しています。</p>
+     <div id="copySections"></div>
+    </section>
+   </main>
+
+   <aside>
+    <section class="card">
+     <h2>判定ラベル</h2>
+     <ul class="legend">
+      <li>✅ <span><strong>安全寄り</strong><br>英数字など、最も保守的な候補です。</span></li>
+      <li>🟡 <span><strong>通りやすそう</strong><br>複数や定番候補で見つかった文字です。</span></li>
+      <li>🟠 <span><strong>候補</strong><br>少しクセはありますが、試す価値のある文字です。</span></li>
+      <li>⚠️ <span><strong>表示崩れ注意</strong><br>ゲーム内で ? や□になる可能性があります。</span></li>
+      <li>🔴 <span><strong>不可視・非推奨</strong><br>検索困難・表示崩れ・フレンド追加事故の可能性があります。</span></li>
+     </ul>
+    </section>
+
+    <section class="card">
+     <h2>おすすめ設計</h2>
+     <p class="small">
+      初期表示は「通りやすそう」からにしています。普通文字・ツ・キリル文字は候補一覧から外しています。上付きアルファベットは実用候補として別カテゴリにしています。
+      ユーザーには「絶対使える」ではなく「通りやすそうベース」と見せるのが安全です。
+     </p>
+    </section>
+   </aside>
+  </div>
+ </div>
+
+ <div id="toast" class="toast">コピーしました</div>
+
+ <script>
+  const GROUPS = [
+   {
+    id: "reported",
+    label: "おすすめ",
+    level: "reported",
+    note: "で比較的強い候補です。普通文字・ツ・キリル文字はパレットから外しています。",
+    chars: "ΨΛΞǃ"
+   },
+   {
+    id: "single",
+    label: "シンプル記号",
+    level: "single",
+    note: "少しクセはありますが、試す価値のある特殊文字です。普通文字・キリル文字は除いています。",
+    chars: "ːϟℜζ〆שکﱞٌّ"
+   },
+   {
+    id: "Faces",
+    label: "顔文字",
+    level: "single",
+    note: "顔文字でよく使われる部品です。ᴥを含みます。キリル文字は除外しています。",
+    chars: "ʕᵒᴥᵔʔʚɞ"
+   },
+   {
+    id: "Marks",
+    label: "かざり記号",
+    level: "single",
+    note: "名前の装飾に使いやすい記号です。",
+    chars: "ए〇تωαـﮩ٨"
+   },
+   {
+    id: "superscriptAlphabet",
+    label: "上付き英字",
+    level: "risk",
+    note: "上付き風アルファベット候補です。通常ASCIIは混ぜていません。Q/qは専用の完全な上付きLatinが弱いため、見た目候補としてᴽ/ᵠを入れています。",
+    chars: "ᴬᴮᶜᴰᴱᶠᴳᴴᴵᴶᴷᴸᴹᴺᴼᴾᴽᵠᴿˢᵀᵁⱽᵂˣʸᶻᵃᵇᵈᵉᵍʰⁱʲᵏˡᵐⁿᵒᵖʳᵗᵘᵛʷ"
+   },
+   {
+    id: "superscriptExtended",
+    label: "上付き拡張",
+    level: "risk",
+    note: "UnicodeのModifier Letter / Phonetic Extensions系です。名前装飾で使われる可能性がある拡張候補です。",
+    chars: "ʱʴʵʶˠˤᵄᵅᵆᵊᵋᵌᵑᵓᵕᵝᵞᵟᵠᵡᶝᶞᶟᶡᶢᶣᶤᶥᶦᶧᶨᶩᶪᶫᶬᶭᶮᶯᶰᶱᶲᶳᶴᶵᶶᶷᶸᶹᶺᶼᶽᶾᶿ"
+   },
+   {
+    id: "displayRiskSuperscript",
+    label: "上付き数字",
+    level: "risk",
+    note: "小さく上に付く数字や記号です。",
+    chars: "⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾"
+   },
+   {
+    id: "subscript",
+    label: "下付き",
+    level: "risk",
+    note: "上付きと一緒に使われやすい下付き候補です。Epic公式保証ではありません。",
+    chars: "₀₁₂₃₄₅₆₇₈₉₊₋₌₍₎ₐₑₒₓₕₖₗₘₙₚₛₜᵢᵣᵤᵥ"
+   },
+   {
+    id: "displayRiskAccent",
+    label: "アクセント",
+    level: "risk",
+    note: "アクセント系の候補です。Epic/Fortniteでの表示は環境差があります。",
+    chars: "æøūéÆÿÂâōīµÄËḦÏÖÜẄẌŸäëḧïöüẅẍ"
+   },
+   {
+    id: "displayRiskSymbols",
+    label: "表示注意",
+    level: "risk",
+    note: "表示崩れ注意の記号候補です。☠のような根拠の弱い装飾記号は入れていません。",
+    chars: "†™¿‡"
+   },
+   {
+    id: "invisible",
+    label: "不可視",
+    level: "invisible",
+    note: "見えない文字です。検索しづらくなるため非推奨です。",
+    chars: "ㅤᅟ"
+   }
+  ];
+
+  const REPORT_ONLY_CHARS = {
+   "ツ": {
+    level: "reported",
+    category: "🟡 通りやすそう",
+    note: "普通のカタカナなので候補パレットには表示していません。入力時のみ個別判定します。"
+   },
+   "あ": {
+    level: "single",
+    category: "🟠 試す価値あり",
+    note: "普通のひらがななので候補パレットには表示していません。入力時のみ個別判定します。"
+   },
+   "シ": {
+    level: "single",
+    category: "🟠 試す価値あり",
+    note: "普通のカタカナなので候補パレットには表示していません。入力時のみ個別判定します。"
+   },
+   "ヤ": {
+    level: "single",
+    category: "🟠 試す価値あり",
+    note: "普通のカタカナなので候補パレットには表示していません。入力時のみ個別判定します。"
+   }
+  };
+
+  const SPECIAL_NOTES = {
+   "!": { level: "blocked", label: "❌ 通常の ! は非推奨", note: "代替として ǃ が使われることがあります。" },
+   "！": { level: "risk", label: "⚠️ 全角びっくり", note: "通る可能性はありますが、ǃ の方が報告は強めです。" },
+   " ": { level: "blocked", label: "❌ 半角空白", note: "表示名では弾かれやすい文字です。" },
+   "_": { level: "safe", label: "✅ 安全寄り", note: "一般的なID文字として扱います。" },
+   "-": { level: "unknown", label: "🔵 未分類", note: "使用できる可能性はありますが、このDBでは未検証扱いです。" }
+  };
+
+  const LEVEL_LABELS = {
+   safe: "✅ 安全寄り",
+   reported: "🟡 通りやすそう",
+   single: "🟠 試す価値あり",
+   risk: "⚠️ 表示注意",
+   invisible: "🔴 不可視・非推奨",
+   blocked: "❌ 非推奨",
+   unknown: "🔵 未分類"
+  };
+
+  const LEVEL_SCORE = {
+   safe: 0,
+   reported: 1,
+   single: 2,
+   unknown: 3,
+   risk: 4,
+   invisible: 5,
+   blocked: 6
+  };
+
+  const input = document.getElementById("nameInput");
+  const searchInput = document.getElementById("searchInput");
+  const lengthPill = document.getElementById("lengthPill");
+  const categoryPill = document.getElementById("categoryPill");
+  const statusBox = document.getElementById("statusBox");
+  const charStrip = document.getElementById("charStrip");
+  const analysisBody = document.getElementById("analysisBody");
+  const palette = document.getElementById("palette");
+  const tabs = document.getElementById("tabs");
+  const copySections = document.getElementById("copySections");
+  const toast = document.getElementById("toast");
+
+  let activeGroupId = "all";
+
+  const charMap = buildCharMap(GROUPS);
+
+  function buildCharMap(groups) {
+   const map = new Map();
+
+   for (const group of groups) {
+    for (const ch of splitGraphemes(group.chars)) {
+     if (!ch) continue;
+     if (!map.has(ch) || LEVEL_SCORE[group.level] < LEVEL_SCORE[map.get(ch).level]) {
+      map.set(ch, {
+       char: ch,
+       groupId: group.id,
+       category: group.label,
+       level: group.level,
+       note: group.note
+      });
+     }
+    }
+   }
+
+   for (const [ch, data] of Object.entries(REPORT_ONLY_CHARS)) {
+    map.set(ch, {
+     char: ch,
+     groupId: "report-only",
+     category: data.category,
+     level: data.level,
+     note: data.note
+    });
+   }
+
+   for (const [ch, data] of Object.entries(SPECIAL_NOTES)) {
+    map.set(ch, {
+     char: ch,
+     groupId: "special",
+     category: data.label,
+     level: data.level,
+     note: data.note
+    });
+   }
+
+   return map;
+  }
+
+  function splitGraphemes(text) {
+   if (window.Intl && Intl.Segmenter) {
+    const segmenter = new Intl.Segmenter("ja", { granularity: "grapheme" });
+    return [...segmenter.segment(text)].map(x => x.segment);
+   }
+   return Array.from(text);
+  }
+
+  function codePoints(str) {
+   return [...str].map(ch =>
+    "U+" + ch.codePointAt(0).toString(16).toUpperCase().padStart(4, "0")
+   ).join(" ");
+  }
+
+  function visibleChar(ch) {
+   if (ch === " ") return "半角空白";
+   if (ch === "\n") return "改行";
+   if (/^\p{White_Space}$/u.test(ch)) return "空白";
+   if (["ㅤ", "ᅟ", "⠀"].includes(ch)) return "不可視";
+   return ch;
+  }
+
+  function classify(ch) {
+   if (/^[A-Za-z0-9]$/.test(ch)) {
+    return {
+     char: ch,
+     groupId: "builtin-safe",
+     category: "✅ 安全寄り",
+     level: "safe",
+     note: "普通のASCII英数字です。候補パレットには表示していませんが、入力時は安全寄りとして判定します。"
+    };
+   }
+
+   if (/^[Ａ-Ｚａ-ｚ０-９]$/u.test(ch)) {
+    return {
+     char: ch,
+     groupId: "report-only-fullwidth",
+     category: "⚠️ 表示崩れ注意：全角英数字",
+     level: "risk",
+     note: "全角英数字です。普通文字に見えるため候補パレットには表示していません。"
+    };
+   }
+
+   if (/^\p{Script=Cyrillic}$/u.test(ch)) {
+    return {
+     char: ch,
+     groupId: "cyrillic-hidden",
+     category: "🔴 キリル文字・非推奨",
+     level: "invisible",
+     note: "キリル同形文字は検索困難化しやすく、今回は候補から除外しています。"
+    };
+   }
+
+   if (charMap.has(ch)) return charMap.get(ch);
+
+   if (/[\u0000-\u001F\u007F]/.test(ch)) {
+    return {
+     char: ch,
+     groupId: "special",
+     category: "❌ 制御文字",
+     level: "blocked",
+     note: "制御文字はIDには不向きです。"
+    };
+   }
+
+   if (/\p{Extended_Pictographic}/u.test(ch)) {
+    return {
+     char: ch,
+     groupId: "special",
+     category: "❌ 絵文字",
+     level: "blocked",
+     note: "絵文字は弾かれる可能性が高いです。"
+    };
+   }
+
+   if (/^[ぁ-ゖァ-ヺー]$/u.test(ch)) {
+    return {
+     char: ch,
+     groupId: "ordinary-kana",
+     category: "🔵 普通のかな・カナ",
+     level: "unknown",
+     note: "普通のひらがな・カタカナです。候補パレットには表示していません。Epic側の最終判定は未保証です。"
+    };
+   }
+
+   if (/^\p{Letter}$/u.test(ch) || /^\p{Number}$/u.test(ch)) {
+    return {
+     char: ch,
+     groupId: "unknown",
+     category: "🔵 Unicode文字・未分類",
+     level: "unknown",
+     note: "文字としては妥当ですが、このDBでは通りやすそう未確認です。候補パレットには表示していません。"
+    };
+   }
+
+   return {
+    char: ch,
+    groupId: "unknown",
+    category: "🔵 記号・未分類",
+    level: "unknown",
+    note: "Epic側で弾かれる可能性があります。"
+   };
+  }
+
+  function analyzeName(value) {
+   const chars = splitGraphemes(value.normalize("NFC"));
+   const items = chars.map(ch => ({
+    ch,
+    ...classify(ch)
+   }));
+
+   const maxLevel = items.reduce((max, item) => {
+    return LEVEL_SCORE[item.level] > LEVEL_SCORE[max] ? item.level : max;
+   }, "safe");
+
+   const errors = [];
+   if (chars.length > 0 && chars.length < 3) errors.push("3文字未満です。");
+   if (chars.length > 16) errors.push("16文字を超えています。");
+   if (items.some(x => x.level === "blocked")) errors.push("非推奨文字が含まれています。");
+   if (items.some(x => x.level === "invisible")) errors.push("不可視文字が含まれています。");
+
+   return { chars, items, maxLevel, errors };
+  }
+
+  function renderAnalysis() {
+   const value = input.value;
+   const result = analyzeName(value);
+
+   lengthPill.textContent = `${result.chars.length} / 16文字`;
+
+   if (result.chars.length === 0) {
+    categoryPill.textContent = "未入力";
+    statusBox.className = "status risk";
+    statusBox.textContent = "Epic IDを入力するか、下の文字パレットから追加してください。";
+   } else {
+    categoryPill.textContent = LEVEL_LABELS[result.maxLevel];
+
+    if (result.errors.length > 0) {
+     statusBox.className = "status risk";
+     statusBox.textContent = "要修正: " + result.errors.join(" / ");
+    } else if (result.maxLevel === "safe") {
+     statusBox.className = "status safe";
+     statusBox.textContent = "かなり安全寄りです。英数字中心なので、最も保守的な構成です。";
+    } else if (result.maxLevel === "reported") {
+     statusBox.className = "status reported";
+     statusBox.textContent = "通る可能性は高めです。よく使われるタイプの文字が含まれています。";
+    } else if (result.maxLevel === "single") {
+     statusBox.className = "status single";
+     statusBox.textContent = "使える可能性はありますが、候補の文字が含まれます。";
+    } else {
+     statusBox.className = "status risk";
+     statusBox.textContent = "注意が必要です。未分類・表示崩れ・非推奨の文字が含まれます。";
+    }
+   }
+
+   charStrip.innerHTML = "";
+   analysisBody.innerHTML = "";
+
+   for (const item of result.items) {
+    const chip = document.createElement("span");
+    chip.className = `chip ${item.level}`;
+    chip.textContent = `${visibleChar(item.ch)} ${LEVEL_LABELS[item.level].split(" ")[0] || ""}`;
+    chip.title = `${codePoints(item.ch)} ${item.note}`;
+    charStrip.appendChild(chip);
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+     <td><strong>${escapeHtml(visibleChar(item.ch))}</strong></td>
+     <td><code>${escapeHtml(codePoints(item.ch))}</code></td>
+     <td>${escapeHtml(LEVEL_LABELS[item.level])}</td>
+     <td>${escapeHtml(item.note)}</td>
+    `;
+    analysisBody.appendChild(tr);
+   }
+
+   if (result.items.length === 0) {
+    analysisBody.innerHTML = `
+     <tr>
+      <td colspan="4" class="small">入力すると、ここに1文字ずつの判定が表示されます。</td>
+     </tr>
+    `;
+   }
+  }
+
+  function renderTabs() {
+   tabs.innerHTML = "";
+
+   const allBtn = document.createElement("button");
+   allBtn.className = `tab ${activeGroupId === "all" ? "active" : ""}`;
+   allBtn.textContent = "全部表示";
+   allBtn.onclick = () => {
+    activeGroupId = "all";
+    renderTabs();
+    renderPalette();
+   };
+   tabs.appendChild(allBtn);
+
+   for (const group of GROUPS) {
+    const btn = document.createElement("button");
+    btn.className = `tab ${activeGroupId === group.id ? "active" : ""}`;
+    btn.textContent = group.label;
+    btn.onclick = () => {
+     activeGroupId = group.id;
+     renderTabs();
+     renderPalette();
+    };
+    tabs.appendChild(btn);
+   }
+  }
+
+  function renderPalette() {
+   const query = searchInput.value.trim().toLowerCase();
+   palette.innerHTML = "";
+
+   const groups = activeGroupId === "all"
+    ? GROUPS
+    : GROUPS.filter(g => g.id === activeGroupId);
+
+   const entries = [];
+
+   for (const group of groups) {
+    for (const ch of splitGraphemes(group.chars)) {
+     if (!ch) continue;
+
+     const meta = classify(ch);
+     const searchable = [
+      ch,
+      visibleChar(ch),
+      codePoints(ch),
+      group.label,
+      group.note,
+      meta.note
+     ].join(" ").toLowerCase();
+
+     if (!query || searchable.includes(query)) {
+      entries.push({ ch, group, meta });
+     }
+    }
+   }
+
+   const seen = new Set();
+
+   for (const entry of entries) {
+    if (seen.has(entry.ch)) continue;
+    seen.add(entry.ch);
+
+    const card = document.createElement("button");
+    card.className = `char-card ${entry.meta.level}`;
+    card.type = "button";
+    card.title = `${entry.group.label}\n${codePoints(entry.ch)}\n${entry.meta.note}`;
+    card.innerHTML = `
+     <span class="big">${escapeHtml(visibleChar(entry.ch))}</span>
+     <span class="code">${escapeHtml(codePoints(entry.ch))}</span>
+    `;
+    card.onclick = () => {
+     input.value += entry.ch;
+     renderAnalysis();
+     input.focus();
+    };
+    palette.appendChild(card);
+   }
+
+   if (!palette.children.length) {
+    const empty = document.createElement("div");
+    empty.className = "small";
+    empty.textContent = "該当する文字がありません。";
+    palette.appendChild(empty);
+   }
+  }
+
+  function renderCopySections() {
+   copySections.innerHTML = "";
+
+   for (const group of GROUPS) {
+    const details = document.createElement("details");
+    details.open = !["invisible", "displayRisk", "decorative"].includes(group.id);
+
+    const charsOneLine = splitGraphemes(group.chars).join("");
+    details.innerHTML = `
+     <summary>${escapeHtml(group.label)}</summary>
+     <p class="small">${escapeHtml(group.note)}</p>
+     <textarea class="copy-block" readonly>${escapeHtml(charsOneLine)}</textarea>
+     <div class="button-row">
+      <button type="button">このカテゴリをコピー</button>
+     </div>
+    `;
+
+    details.querySelector("button").onclick = () => copyText(charsOneLine);
+    copySections.appendChild(details);
+   }
+  }
+
+  function copyText(text) {
+   if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(() => showToast("コピーしました"));
+   } else {
+    const temp = document.createElement("textarea");
+    temp.value = text;
+    document.body.appendChild(temp);
+    temp.select();
+    document.execCommand("copy");
+    temp.remove();
+    showToast("コピーしました");
+   }
+  }
+
+  function showToast(message) {
+   toast.textContent = message;
+   toast.classList.add("show");
+   clearTimeout(showToast.timer);
+   showToast.timer = setTimeout(() => toast.classList.remove("show"), 1200);
+  }
+
+  function escapeHtml(text) {
+   return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+  }
+
+  input.addEventListener("input", renderAnalysis);
+  searchInput.addEventListener("input", renderPalette);
+
+  document.getElementById("copyNameBtn").onclick = () => {
+   if (!input.value) return showToast("入力が空です");
+   copyText(input.value);
+  };
+
+  document.getElementById("clearBtn").onclick = () => {
+   input.value = "";
+   renderAnalysis();
+   input.focus();
+  };
+
+  document.getElementById("keepSafeBtn").onclick = () => {
+   const kept = analyzeName(input.value).items
+    .filter(item => item.level === "safe")
+    .map(item => item.ch)
+    .join("");
+   input.value = kept;
+   renderAnalysis();
+  };
+
+  document.getElementById("removeRiskBtn").onclick = () => {
+   const kept = analyzeName(input.value).items
+    .filter(item => !["risk", "invisible", "blocked", "unknown"].includes(item.level))
+    .map(item => item.ch)
+    .join("");
+   input.value = kept;
+   renderAnalysis();
+  };
+
+  document.getElementById("sampleBtn").onclick = () => {
+   input.value = "ΨΛǃᴥ";
+   renderAnalysis();
+   input.focus();
+  };
+
+  renderTabs();
+  renderPalette();
+  renderCopySections();
+  renderAnalysis();
+ </script>
+</body>
+</html>
