@@ -5,1115 +5,1573 @@
  <meta name="viewport" content="width=device-width, initial-scale=1" />
  <title>Epic ID 文字チェッカー</title>
  <style>
-  :root {
-   --bg: #f6f7fb;
-   --panel: #ffffff;
-   --text: #202333;
-   --muted: #6b7280;
-   --line: #e5e7eb;
-   --safe-bg: #e9f8ef;
-   --safe-bd: #b9e7c7;
-   --safe-tx: #176a35;
-   --reported-bg: #fff6df;
-   --reported-bd: #f0d58f;
-   --reported-tx: #7a5200;
-   --single-bg: #fff0e6;
-   --single-bd: #efc0a0;
-   --single-tx: #8a3f00;
-   --risk-bg: #fdecec;
-   --risk-bd: #efb4b4;
-   --risk-tx: #9f1d1d;
-   --unknown-bg: #eef2ff;
-   --unknown-bd: #c7d2fe;
-   --unknown-tx: #3730a3;
-   --shadow: 0 12px 32px rgba(17, 24, 39, .08);
-   --radius: 18px;
-  }
+ :root {
+  --bg: #fff7fb;
+  --panel: rgba(255, 255, 255, .92);
+  --text: #3f3148;
+  --muted: #8a7895;
+  --line: #f0d6e8;
+  --safe-bg: #ecfbf2;
+  --safe-bd: #bfead0;
+  --safe-tx: #2f7d50;
+  --reported-bg: #fff0fa;
+  --reported-bd: #f1bfe0;
+  --reported-tx: #9c4f87;
+  --single-bg: #f4efff;
+  --single-bd: #d9c7ff;
+  --single-tx: #6845a8;
+  --risk-bg: #fff2e8;
+  --risk-bd: #f4c9a7;
+  --risk-tx: #9b5524;
+  --unknown-bg: #eef7ff;
+  --unknown-bd: #b8dfff;
+  --unknown-tx: #38678d;
+  --shadow: 0 16px 40px rgba(150, 82, 130, .13);
+  --radius: 18px;
+ }
 
-  * {
-   box-sizing: border-box;
-  }
+ * {
+  box-sizing: border-box;
+ }
 
-  body {
-   margin: 0;
-   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-   background:
-    radial-gradient(circle at top left, rgba(115, 120, 255, .12), transparent 34rem),
-    radial-gradient(circle at top right, rgba(255, 180, 120, .12), transparent 28rem),
+ body {
+  margin: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(255, 182, 213, .34), transparent 32rem),
+    radial-gradient(circle at top right, rgba(198, 187, 255, .30), transparent 30rem),
+    radial-gradient(circle at 50% 0%, rgba(255, 236, 196, .32), transparent 38rem),
     var(--bg);
-   color: var(--text);
-   line-height: 1.65;
+  color: var(--text);
+  line-height: 1.65;
+ }
+
+ .wrap {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 28px 16px 56px;
+ }
+
+ header {
+  margin-bottom: 18px;
+ }
+
+ h1 {
+  font-size: clamp(26px, 4vw, 42px);
+  margin: 0 0 8px;
+  letter-spacing: .02em;
+ }
+
+ .lead {
+  color: var(--muted);
+  margin: 0;
+  max-width: 780px;
+ }
+
+ .notice {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, .7);
+  color: #4b5563;
+  font-size: 14px;
+ }
+
+ .grid {
+   display: block;
   }
 
-  .wrap {
-   max-width: 1120px;
+  .grid main {
+   max-width: 860px;
    margin: 0 auto;
-   padding: 28px 16px 56px;
   }
 
-  header {
-   margin-bottom: 18px;
+  aside {
+   display: none;
   }
 
-  h1 {
-   font-size: clamp(26px, 4vw, 42px);
-   margin: 0 0 8px;
-   letter-spacing: .02em;
-  }
-
-  .lead {
-   color: var(--muted);
-   margin: 0;
-   max-width: 780px;
-  }
-
-  .notice {
-   margin-top: 14px;
-   padding: 12px 14px;
-   border: 1px solid var(--line);
-   border-radius: 14px;
-   background: rgba(255, 255, 255, .7);
-   color: #4b5563;
-   font-size: 14px;
-  }
-
+ @media (max-width: 900px) {
   .grid {
-   display: grid;
-   grid-template-columns: minmax(0, 1fr) 360px;
-   gap: 18px;
-   align-items: start;
+  grid-template-columns: 1fr;
   }
+ }
 
-  @media (max-width: 900px) {
-   .grid {
-    grid-template-columns: 1fr;
-   }
-  }
+ .card {
+  background: var(--panel);
+  border: 1px solid rgba(229, 231, 235, .8);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px;
+ }
 
-  .card {
-   background: var(--panel);
-   border: 1px solid rgba(229, 231, 235, .8);
-   border-radius: var(--radius);
-   box-shadow: var(--shadow);
-   padding: 18px;
-  }
+ .card + .card {
+  margin-top: 18px;
+ }
 
-  .card + .card {
-   margin-top: 18px;
-  }
+ .card h2 {
+  font-size: 18px;
+  margin: 0 0 12px;
+ }
 
-  .card h2 {
-   font-size: 18px;
-   margin: 0 0 12px;
-  }
+ .input-row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+ }
 
+ @media (max-width: 560px) {
   .input-row {
-   display: flex;
-   gap: 10px;
-   align-items: stretch;
+  flex-direction: column;
   }
+ }
 
-  @media (max-width: 560px) {
-   .input-row {
-    flex-direction: column;
-   }
-  }
+ input[type="text"], .search-input {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 14px;
+  font-size: 22px;
+  padding: 13px 14px;
+  outline: none;
+  background: #fff;
+  color: var(--text);
+ }
 
-  input[type="text"], .search-input {
-   width: 100%;
-   border: 1px solid #d1d5db;
-   border-radius: 14px;
-   font-size: 22px;
-   padding: 13px 14px;
-   outline: none;
-   background: #fff;
-   color: var(--text);
-  }
+ input[type="text"]:focus, .search-input:focus {
+  border-color: #a5b4fc;
+  box-shadow: 0 0 0 4px rgba(165, 180, 252, .28);
+ }
 
-  input[type="text"]:focus, .search-input:focus {
-   border-color: #a5b4fc;
-   box-shadow: 0 0 0 4px rgba(165, 180, 252, .28);
-  }
+ .button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+ }
 
-  .button-row {
-   display: flex;
-   flex-wrap: wrap;
-   gap: 8px;
-   margin-top: 12px;
-  }
+ button {
+  border: 1px solid #d1d5db;
+  background: #fff;
+  color: #111827;
+  border-radius: 999px;
+  padding: 9px 12px;
+  cursor: pointer;
+  font-weight: 700;
+  transition: transform .06s ease, box-shadow .12s ease, background .12s ease;
+ }
 
-  button {
-   border: 1px solid #d1d5db;
-   background: #fff;
-   color: #111827;
-   border-radius: 999px;
-   padding: 9px 12px;
-   cursor: pointer;
-   font-weight: 700;
-   transition: transform .06s ease, box-shadow .12s ease, background .12s ease;
-  }
+ button:hover {
+  background: #f9fafb;
+  box-shadow: 0 4px 16px rgba(17, 24, 39, .08);
+ }
 
-  button:hover {
-   background: #f9fafb;
-   box-shadow: 0 4px 16px rgba(17, 24, 39, .08);
-  }
+ button:active {
+  transform: translateY(1px);
+ }
 
-  button:active {
-   transform: translateY(1px);
-  }
+ .primary {
+  background: #111827;
+  color: white;
+  border-color: #111827;
+ }
 
-  .primary {
-   background: #111827;
-   color: white;
-   border-color: #111827;
-  }
+ .primary:hover {
+  background: #1f2937;
+ }
 
-  .primary:hover {
-   background: #1f2937;
-  }
+ .danger {
+  color: #991b1b;
+  border-color: #fecaca;
+  background: #fff7f7;
+ }
 
-  .danger {
-   color: #991b1b;
-   border-color: #fecaca;
-   background: #fff7f7;
-  }
+ .meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+  color: var(--muted);
+  font-size: 14px;
+ }
 
-  .meta {
-   display: flex;
-   flex-wrap: wrap;
-   gap: 8px;
-   margin-top: 12px;
+ .pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  padding: 6px 10px;
+  background: #fff;
+  font-weight: 700;
+ }
+
+ .status {
+  margin-top: 14px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  font-weight: 800;
+ }
+
+ .status.safe {
+  background: var(--safe-bg);
+  color: var(--safe-tx);
+  border: 1px solid var(--safe-bd);
+ }
+
+ .status.reported {
+  background: var(--reported-bg);
+  color: var(--reported-tx);
+  border: 1px solid var(--reported-bd);
+ }
+
+ .status.single {
+  background: var(--single-bg);
+  color: var(--single-tx);
+  border: 1px solid var(--single-bd);
+ }
+
+ .status.risk {
+  background: var(--risk-bg);
+  color: var(--risk-tx);
+  border: 1px solid var(--risk-bd);
+ }
+
+ .char-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+ }
+
+ .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 12px;
+  padding: 8px 10px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  border: 1px solid var(--line);
+  background: #fff;
+ }
+
+ .chip.safe {
+  background: var(--safe-bg);
+  border-color: var(--safe-bd);
+  color: var(--safe-tx);
+ }
+
+ .chip.reported {
+  background: var(--reported-bg);
+  border-color: var(--reported-bd);
+  color: var(--reported-tx);
+ }
+
+ .chip.single {
+  background: var(--single-bg);
+  border-color: var(--single-bd);
+  color: var(--single-tx);
+ }
+
+ .chip.risk, .chip.invisible, .chip.blocked {
+  background: var(--risk-bg);
+  border-color: var(--risk-bd);
+  color: var(--risk-tx);
+ }
+
+
+ .chip.unverified {
+  background: var(--unknown-bg);
+  border-color: var(--unknown-bd);
+  color: var(--unknown-tx);
+ }
+
+ .char-card.unverified {
+  background: var(--unknown-bg);
+  border-color: var(--unknown-bd);
+ }
+
+ .chip.unknown {
+  background: var(--unknown-bg);
+  border-color: var(--unknown-bd);
+  color: var(--unknown-tx);
+ }
+
+ .analysis-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 14px;
+  overflow: hidden;
+  border-radius: 14px;
+  font-size: 14px;
+ }
+
+ .analysis-table th, .analysis-table td {
+  border-bottom: 1px solid var(--line);
+  padding: 9px 8px;
+  text-align: left;
+  vertical-align: top;
+ }
+
+ .analysis-table th {
+  color: #4b5563;
+  background: #f9fafb;
+  font-size: 13px;
+ }
+
+ .analysis-table tr:last-child td {
+  border-bottom: none;
+ }
+
+ .tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+ }
+
+ .tab {
+  font-size: 13px;
+  padding: 8px 10px;
+ }
+
+ .tab.active {
+  background: #111827;
+  color: #fff;
+  border-color: #111827;
+ }
+
+ .palette {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(74px, 1fr));
+  gap: 9px;
+  margin-top: 12px;
+ }
+
+ .char-card {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 10px 8px;
+  background: #fff;
+  cursor: pointer;
+  min-height: 82px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  text-align: center;
+ }
+
+ .char-card:hover {
+  box-shadow: 0 8px 20px rgba(17, 24, 39, .08);
+  transform: translateY(-1px);
+ }
+
+ .char-card .big {
+  font-size: 26px;
+  line-height: 1;
+  font-family: system-ui, "Noto Sans JP", sans-serif;
+  min-height: 28px;
+ }
+
+ .char-card .code {
+  font-size: 11px;
+  color: var(--muted);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+ }
+
+ .char-card.safe {
+  background: var(--safe-bg);
+  border-color: var(--safe-bd);
+ }
+
+ .char-card.reported {
+  background: var(--reported-bg);
+  border-color: var(--reported-bd);
+ }
+
+ .char-card.single {
+  background: var(--single-bg);
+  border-color: var(--single-bd);
+ }
+
+ .char-card.risk, .char-card.invisible {
+  background: var(--risk-bg);
+  border-color: var(--risk-bd);
+ }
+
+ .copy-block {
+  width: 100%;
+  min-height: 92px;
+  resize: vertical;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 16px;
+  line-height: 1.6;
+  background: #fafafa;
+ }
+
+ details {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: #fff;
+  margin-top: 10px;
+ }
+
+ summary {
+  cursor: pointer;
+  font-weight: 800;
+ }
+
+ .small {
+  font-size: 13px;
+  color: var(--muted);
+ }
+
+ .toast {
+  position: fixed;
+  left: 50%;
+  bottom: 22px;
+  transform: translateX(-50%);
+  background: #111827;
+  color: white;
+  padding: 10px 14px;
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .18s ease, transform .18s ease;
+  z-index: 50;
+  font-weight: 800;
+ }
+
+ .toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-4px);
+ }
+
+ .legend {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+ }
+
+ .legend li {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  color: #4b5563;
+  font-size: 14px;
+ }
+ 
+  .credit {
+   margin-top: 28px;
+   text-align: center;
    color: var(--muted);
-   font-size: 14px;
+   font-size: 13px;
   }
 
-  .pill {
-   display: inline-flex;
-   align-items: center;
-   gap: 6px;
-   border-radius: 999px;
-   border: 1px solid var(--line);
-   padding: 6px 10px;
-   background: #fff;
-   font-weight: 700;
-  }
-
-  .status {
-   margin-top: 14px;
-   padding: 12px 14px;
-   border-radius: 14px;
+  .credit a {
+   color: inherit;
    font-weight: 800;
+   text-decoration: none;
   }
 
-  .status.safe {
-   background: var(--safe-bg);
-   color: var(--safe-tx);
-   border: 1px solid var(--safe-bd);
+  .credit a:hover {
+   text-decoration: underline;
   }
 
-  .status.reported {
-   background: var(--reported-bg);
-   color: var(--reported-tx);
-   border: 1px solid var(--reported-bd);
-  }
-
-  .status.single {
-   background: var(--single-bg);
-   color: var(--single-tx);
-   border: 1px solid var(--single-bd);
-  }
-
-  .status.risk {
-   background: var(--risk-bg);
-   color: var(--risk-tx);
-   border: 1px solid var(--risk-bd);
-  }
-
-  .char-strip {
-   display: flex;
-   flex-wrap: wrap;
-   gap: 8px;
-   margin-top: 14px;
-  }
-
-  .chip {
-   display: inline-flex;
-   align-items: center;
-   gap: 6px;
-   border-radius: 12px;
-   padding: 8px 10px;
-   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-   border: 1px solid var(--line);
-   background: #fff;
-  }
-
-  .chip.safe {
-   background: var(--safe-bg);
-   border-color: var(--safe-bd);
-   color: var(--safe-tx);
-  }
-
-  .chip.reported {
-   background: var(--reported-bg);
-   border-color: var(--reported-bd);
-   color: var(--reported-tx);
-  }
-
-  .chip.single {
-   background: var(--single-bg);
-   border-color: var(--single-bd);
-   color: var(--single-tx);
-  }
-
-  .chip.risk, .chip.invisible, .chip.blocked {
-   background: var(--risk-bg);
-   border-color: var(--risk-bd);
-   color: var(--risk-tx);
-  }
-
-
-  .chip.unverified {
-   background: var(--unknown-bg);
-   border-color: var(--unknown-bd);
-   color: var(--unknown-tx);
-  }
-
-  .char-card.unverified {
-   background: var(--unknown-bg);
-   border-color: var(--unknown-bd);
-  }
-
-  .chip.unknown {
-   background: var(--unknown-bg);
-   border-color: var(--unknown-bd);
-   color: var(--unknown-tx);
-  }
-
-  .analysis-table {
-   width: 100%;
-   border-collapse: collapse;
-   margin-top: 14px;
-   overflow: hidden;
-   border-radius: 14px;
-   font-size: 14px;
-  }
-
-  .analysis-table th, .analysis-table td {
-   border-bottom: 1px solid var(--line);
-   padding: 9px 8px;
-   text-align: left;
-   vertical-align: top;
-  }
-
-  .analysis-table th {
-   color: #4b5563;
-   background: #f9fafb;
-   font-size: 13px;
-  }
-
-  .analysis-table tr:last-child td {
-   border-bottom: none;
-  }
-
-  .tabs {
-   display: flex;
-   flex-wrap: wrap;
-   gap: 8px;
-   margin-bottom: 12px;
-  }
-
-  .tab {
-   font-size: 13px;
-   padding: 8px 10px;
-  }
-
-  .tab.active {
-   background: #111827;
-   color: #fff;
-   border-color: #111827;
-  }
-
-  .palette {
-   display: grid;
-   grid-template-columns: repeat(auto-fill, minmax(74px, 1fr));
-   gap: 9px;
-   margin-top: 12px;
-  }
-
-  .char-card {
-   border: 1px solid var(--line);
-   border-radius: 14px;
-   padding: 10px 8px;
-   background: #fff;
-   cursor: pointer;
-   min-height: 82px;
-   display: flex;
-   flex-direction: column;
-   align-items: center;
-   justify-content: center;
-   gap: 4px;
+ 
+  header {
    text-align: center;
   }
 
-  .char-card:hover {
-   box-shadow: 0 8px 20px rgba(17, 24, 39, .08);
-   transform: translateY(-1px);
+  .lead {
+   margin-left: auto;
+   margin-right: auto;
   }
 
-  .char-card .big {
-   font-size: 26px;
-   line-height: 1;
-   font-family: system-ui, "Noto Sans JP", sans-serif;
-   min-height: 28px;
+  .notice {
+   border-color: rgba(240, 214, 232, .9);
+   background: rgba(255, 255, 255, .62);
+   backdrop-filter: blur(8px);
   }
 
-  .char-card .code {
-   font-size: 11px;
-   color: var(--muted);
-   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  .card {
+   backdrop-filter: blur(10px);
   }
 
-  .char-card.safe {
-   background: var(--safe-bg);
-   border-color: var(--safe-bd);
+  .card h2::before {
+   content: "♡ ";
+   color: #e58ac0;
   }
 
-  .char-card.reported {
-   background: var(--reported-bg);
-   border-color: var(--reported-bd);
+  .input-row {
+   align-items: center;
   }
 
-  .char-card.single {
-   background: var(--single-bg);
-   border-color: var(--single-bd);
+  input[type="text"], .search-input {
+   border-color: #edcfe3;
+   background: rgba(255,255,255,.92);
   }
 
-  .char-card.risk, .char-card.invisible {
-   background: var(--risk-bg);
-   border-color: var(--risk-bd);
+  input[type="text"]::placeholder, .search-input::placeholder {
+   color: #b89ab0;
   }
 
-  .copy-block {
-   width: 100%;
-   min-height: 92px;
-   resize: vertical;
-   border: 1px solid var(--line);
-   border-radius: 14px;
-   padding: 12px;
-   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-   font-size: 16px;
-   line-height: 1.6;
-   background: #fafafa;
+  input[type="text"]:focus, .search-input:focus {
+   border-color: #e89bca;
+   box-shadow: 0 0 0 4px rgba(232, 155, 202, .22);
   }
 
-  details {
-   border: 1px solid var(--line);
-   border-radius: 14px;
-   padding: 10px 12px;
-   background: #fff;
+  .primary {
+   background: linear-gradient(135deg, #f08cc4, #a993ff);
+   border-color: transparent;
+   box-shadow: 0 8px 20px rgba(208, 117, 190, .25);
+  }
+
+  .primary:hover {
+   background: linear-gradient(135deg, #ec78bb, #9b83ff);
+  }
+
+  .tabs {
    margin-top: 10px;
   }
 
-  summary {
-   cursor: pointer;
-   font-weight: 800;
+  .tab.active {
+   background: linear-gradient(135deg, #f08cc4, #a993ff);
+   color: #fff;
+   border-color: transparent;
   }
 
-  .small {
-   font-size: 13px;
-   color: var(--muted);
+  .char-card {
+   border-color: rgba(240, 214, 232, .95);
+   background: rgba(255,255,255,.82);
   }
 
-  .toast {
-   position: fixed;
-   left: 50%;
-   bottom: 22px;
-   transform: translateX(-50%);
-   background: #111827;
-   color: white;
-   padding: 10px 14px;
-   border-radius: 999px;
-   box-shadow: var(--shadow);
-   opacity: 0;
-   pointer-events: none;
-   transition: opacity .18s ease, transform .18s ease;
-   z-index: 50;
-   font-weight: 800;
+  .char-card:hover {
+   box-shadow: 0 10px 24px rgba(206, 107, 180, .16);
   }
 
-  .toast.show {
-   opacity: 1;
-   transform: translateX(-50%) translateY(-4px);
+  .analysis-details {
+   margin-top: 14px;
+   background: rgba(255,255,255,.72);
   }
 
-  .legend {
-   display: grid;
-   gap: 8px;
-   margin: 0;
-   padding: 0;
-   list-style: none;
+  .analysis-details summary {
+   color: #8a5c99;
   }
 
-  .legend li {
-   display: flex;
-   gap: 8px;
-   align-items: flex-start;
-   color: #4b5563;
-   font-size: 14px;
-  }
  
-    .credit {
-      margin-top: 28px;
-      text-align: center;
-      color: var(--muted);
-      font-size: 13px;
-    }
+  .palette-inline {
+   margin-top: 16px;
+   padding-top: 14px;
+   border-top: 1px dashed #efd1e5;
+  }
 
-    .credit a {
-      color: inherit;
-      font-weight: 800;
-      text-decoration: none;
-    }
+  .palette-inline .tabs {
+   margin-bottom: 12px;
+  }
 
-    .credit a:hover {
-      text-decoration: underline;
-    }
+  .palette-inline .palette {
+   margin-top: 10px;
+  }
 
-  </style>
+ 
+  :root {
+   --bg: #fff9f6;
+   --panel: #fffdfb;
+   --text: #493640;
+   --muted: #9a7f8c;
+   --line: #f1d9df;
+   --safe-bg: #effaf2;
+   --safe-bd: #cdeed5;
+   --safe-tx: #3d7a52;
+   --reported-bg: #fff1f7;
+   --reported-bd: #f5bfd5;
+   --reported-tx: #9a4f72;
+   --single-bg: #fff7ea;
+   --single-bd: #f2d0a8;
+   --single-tx: #8a5b24;
+   --risk-bg: #fff4ee;
+   --risk-bd: #edc3ad;
+   --risk-tx: #9b5a37;
+   --unknown-bg: #f3f4ff;
+   --unknown-bd: #d7d8f5;
+   --unknown-tx: #6964a8;
+   --shadow: 0 10px 26px rgba(166, 96, 120, .10);
+   --radius: 18px;
+  }
+
+  body {
+   background:
+    radial-gradient(circle at 18px 18px, rgba(244, 198, 209, .28) 0 2px, transparent 2.5px),
+    linear-gradient(180deg, #fff8f3 0%, #fff6fb 48%, #fffdf8 100%) !important;
+   background-size: 28px 28px, 100% 100% !important;
+  }
+
+  .wrap {
+   max-width: 920px;
+   padding: 18px 12px 42px;
+  }
+
+  header {
+   margin-bottom: 12px;
+   text-align: center;
+  }
+
+  h1 {
+   font-size: clamp(24px, 6vw, 34px);
+   margin-bottom: 4px;
+  }
+
+  .lead {
+   font-size: 14px;
+   line-height: 1.45;
+   max-width: 620px;
+   margin: 0 auto;
+  }
+
+  .notice {
+   margin: 10px auto 0;
+   padding: 8px 10px;
+   max-width: 660px;
+   border-radius: 999px;
+   font-size: 12px;
+   background: rgba(255,255,255,.72);
+   border: 1px solid #f1d9df;
+   color: #9a7f8c;
+   box-shadow: none;
+  }
+
+  .grid main {
+   max-width: 760px;
+   margin: 0 auto;
+  }
+
+  .card {
+   border-radius: 20px;
+   padding: 13px;
+   border: 1px solid #f1d9df;
+   box-shadow: var(--shadow);
+   background: rgba(255,253,251,.94);
+   backdrop-filter: blur(8px);
+  }
+
+  .card + .card {
+   margin-top: 12px;
+  }
+
+  .card h2 {
+   font-size: 16px;
+   margin-bottom: 8px;
+  }
+
+  .card h2::before {
+   content: "♡ ";
+   color: #db7da5;
+  }
+
+  .input-row {
+   gap: 8px;
+   align-items: center;
+  }
+
+  input[type="text"], .search-input {
+   font-size: 18px;
+   padding: 9px 11px;
+   border-radius: 14px;
+   border-color: #ead0d7;
+   background: #fff;
+  }
+
+  input[type="text"]:focus, .search-input:focus {
+   border-color: #dc8eb1;
+   box-shadow: 0 0 0 3px rgba(220, 142, 177, .18);
+  }
+
+  .primary {
+   padding: 9px 13px;
+   background: #df82a9;
+   border-color: #df82a9;
+   box-shadow: 0 6px 16px rgba(209, 117, 152, .18);
+  }
+
+  .primary:hover {
+   background: #d96f9b;
+   border-color: #d96f9b;
+  }
+
+  .meta {
+   gap: 6px;
+   margin-top: 8px;
+   font-size: 12px;
+  }
+
+  .pill {
+   padding: 4px 8px;
+   border-color: #efd8df;
+   background: #fffafb;
+   font-size: 12px;
+  }
+
+  .status {
+   margin-top: 8px;
+   padding: 7px 9px;
+   border-radius: 13px;
+   font-size: 13px;
+   line-height: 1.35;
+   font-weight: 700;
+  }
+
+  .palette-inline {
+   margin-top: 9px;
+   padding-top: 9px;
+   border-top: 1px dashed #edd1da;
+  }
+
+  .tabs {
+   gap: 6px;
+   margin-bottom: 8px;
+   overflow-x: auto;
+   flex-wrap: nowrap;
+   padding-bottom: 2px;
+   scrollbar-width: none;
+  }
+
+  .tabs::-webkit-scrollbar {
+   display: none;
+  }
+
+  .tab {
+   flex: 0 0 auto;
+   font-size: 12px;
+   padding: 7px 10px;
+   border-radius: 999px;
+   background: #fffafb;
+   border-color: #ecd4dc;
+   color: #7a5868;
+  }
+
+  .tab.active {
+   background: #df82a9;
+   color: #fff;
+   border-color: #df82a9;
+   box-shadow: 0 6px 14px rgba(209, 117, 152, .16);
+  }
+
+  .palette {
+   grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
+   gap: 7px;
+   margin-top: 8px;
+  }
+
+  .char-card {
+   min-height: 58px;
+   border-radius: 15px;
+   padding: 7px 5px;
+   border-color: #eed7df;
+   background: #fff;
+  }
+
+  .char-card .big {
+   font-size: 23px;
+   min-height: 24px;
+  }
+
+  .char-card .code {
+   display: none;
+  }
+
+  .char-card:hover {
+   box-shadow: 0 8px 16px rgba(209, 117, 152, .14);
+   transform: translateY(-1px);
+  }
+
+  .analysis-details {
+   margin-top: 10px;
+   padding: 8px 10px;
+   border-radius: 14px;
+   background: #fffafb;
+   border-color: #efd8df;
+  }
+
+  .analysis-details summary {
+   color: #8a6172;
+   font-size: 13px;
+   font-weight: 700;
+  }
+
+  .analysis-table {
+   margin-top: 8px;
+   font-size: 12px;
+  }
+
+  .analysis-table th,
+  .analysis-table td {
+   padding: 7px 6px;
+  }
+
+  .analysis-table th:nth-child(2),
+  .analysis-table td:nth-child(2) {
+   display: none;
+  }
+
+  .char-strip {
+   gap: 5px;
+   margin-top: 8px;
+  }
+
+  .chip {
+   padding: 5px 7px;
+   border-radius: 10px;
+   font-size: 12px;
+  }
+
+  .copy-block {
+   min-height: 70px;
+   font-size: 14px;
+   border-color: #efd8df;
+   background: #fffafb;
+  }
+
+  .credit {
+   margin-top: 18px;
+  }
+
+  @media (max-width: 560px) {
+   .wrap {
+    padding: 14px 10px 34px;
+   }
+
+   .input-row {
+    flex-direction: row;
+   }
+
+   input[type="text"] {
+    min-width: 0;
+   }
+
+   #copyNameBtn {
+    flex: 0 0 auto;
+   }
+
+   .palette {
+    grid-template-columns: repeat(auto-fill, minmax(50px, 1fr));
+   }
+
+   .char-card {
+    min-height: 52px;
+   }
+
+   .char-card .big {
+    font-size: 21px;
+   }
+  }
+
+ 
+  :root {
+   --bg: #fffaf7;
+   --panel: #fffefc;
+   --text: #4a3440;
+   --muted: #9a7a88;
+   --line: #f2dce3;
+   --reported-bg: #fff0f6;
+   --reported-bd: #f3bfd4;
+   --reported-tx: #9a4b70;
+   --single-bg: #fff6ee;
+   --single-bd: #f0cfb6;
+   --single-tx: #89593c;
+   --risk-bg: #fff2f0;
+   --risk-bd: #efc2bd;
+   --risk-tx: #9a5048;
+  }
+
+  body {
+   background:
+    radial-gradient(circle at 20px 20px, rgba(236, 177, 191, .20) 0 2px, transparent 2.5px),
+    linear-gradient(180deg, #fff8f2 0%, #fff7fa 55%, #fffdf7 100%) !important;
+   background-size: 30px 30px, 100% 100% !important;
+  }
+
+  .notice {
+   padding: 6px 10px !important;
+   border-radius: 16px !important;
+   line-height: 1.35 !important;
+  }
+
+  .status {
+   padding: 6px 9px !important;
+   min-height: 0 !important;
+   line-height: 1.25 !important;
+  }
+
+  .palette-inline {
+   margin-top: 7px !important;
+   padding-top: 7px !important;
+  }
+
+  .card {
+   padding: 11px !important;
+  }
+
+  .tabs {
+   margin-bottom: 6px !important;
+  }
+
+  .char-card {
+   min-height: 50px !important;
+  }
+
+  .char-card .big {
+   font-size: 22px !important;
+  }
+
+ </style>
 </head>
 <body>
  <div class="wrap">
-  <header>
-   <h1>Epic ID 文字チェッカー 🎮</h1>
-   <p class="lead">Fortnite / Epic ID向けに、通りやすそうベースの特殊文字候補だけをクリックしてIDを組み立て、1文字ずつ判定できます。普通文字・ツ・キリル文字は一覧に出しません。</p>
-   <div class="notice">
-    Epic公式の完全ホワイトリストではありません。デフォルトでは全候補をまとめて表示します。タブは見た目で絞り込みたい時だけ使います。普通のASCII英数字・普通のかな/カナ・全角英数字・ツ・キリル文字は候補一覧には出さず、入力時だけ判定します。
-   </div>
-  </header>
-
-  <div class="grid">
-   <main>
-    <section class="card">
-     <h2>作成中のEpic ID</h2>
-     <div class="input-row">
-      <input id="nameInput" type="text" placeholder="例: ΨΛǃᴥ" autocomplete="off" spellcheck="false" />
-      <button id="copyNameBtn" class="primary">コピー</button>
-     </div>
-
-     <div class="meta">
-      <span id="lengthPill" class="pill">0 / 16文字</span>
-      <span id="categoryPill" class="pill">未入力</span>
-     </div>
-
-     <div id="statusBox" class="status risk">Epic IDを入力するか、下の文字パレットから追加してください。</div>
-
-     <div class="button-row">
-      <button id="clearBtn">クリア</button>
-      <button id="keepSafeBtn">安全寄りだけ残す</button>
-      <button id="removeRiskBtn">非推奨を除去</button>
-      <button id="sampleBtn">サンプル投入</button>
-     </div>
-
-     <div id="charStrip" class="char-strip"></div>
-
-     <table class="analysis-table" aria-label="1文字ずつ判定">
-      <thead>
-       <tr>
-        <th>文字</th>
-        <th>Unicode</th>
-        <th>判定</th>
-        <th>メモ</th>
-       </tr>
-      </thead>
-      <tbody id="analysisBody"></tbody>
-     </table>
-    </section>
-
-    <section class="card">
-     <h2>文字パレット</h2>
-     <input id="searchInput" class="search-input" type="text" placeholder="文字・Unicode・カテゴリで検索" autocomplete="off" spellcheck="false" />
-
-     <div id="tabs" class="tabs"></div>
-     <div id="palette" class="palette"></div>
-    </section>
-
-    <section class="card">
-     <h2>カテゴリ別コピペ欄</h2>
-     <p class="small">特殊文字をまとめてコピーしたい人向けです。特殊文字候補と、上付きアルファベット候補を分けて表示しています。</p>
-     <div id="copySections"></div>
-    </section>
-   </main>
-
-   <aside>
-    <section class="card">
-     <h2>判定ラベル</h2>
-     <ul class="legend">
-      <li>✅ <span><strong>安全寄り</strong><br>英数字など、最も保守的な候補です。</span></li>
-      <li>🟡 <span><strong>通りやすそう</strong><br>複数や定番候補で見つかった文字です。</span></li>
-      <li>🟠 <span><strong>候補</strong><br>少しクセはありますが、試す価値のある文字です。</span></li>
-      <li>⚠️ <span><strong>表示崩れ注意</strong><br>ゲーム内で ? や□になる可能性があります。</span></li>
-      <li>🔴 <span><strong>不可視・非推奨</strong><br>検索困難・表示崩れ・フレンド追加事故の可能性があります。</span></li>
-     </ul>
-    </section>
-   </aside>
+ <header>
+  <h1>Epic ID 文字チェッカー 🎮</h1>
+  <p class="lead">Fortnite / Epic ID向けに、通りやすそうベースの特殊文字候補だけをクリックしてIDを組み立て、1文字ずつ判定できます。普通文字・ツ・キリル文字は一覧に出しません。</p>
+  <div class="notice">
+  ぜったい使えるとは限りません。使えそうな文字を集めています。
   </div>
+ </header>
+
+ <div class="grid">
+  <main>
+  <section class="card">
+   <h2>作成中のEpic ID</h2>
+   <div class="input-row">
+   <input id="nameInput" type="text" placeholder="例: ΨΛǃᴥ" autocomplete="off" spellcheck="false" maxlength="64" inputmode="text" />
+   <button id="copyNameBtn" class="primary">コピー</button>
+   </div>
+
+   <div class="meta">
+   <span id="lengthPill" class="pill">0 / 16文字</span>
+   <span id="categoryPill" class="pill">未入力</span>
+   </div>
+
+   <div id="statusBox" class="status risk">文字をタップで追加できます。</div>
+     <div class="palette-inline">
+      <div id="tabs" class="tabs"></div>
+      <div id="palette" class="palette"></div>
+     </div>
+
+<details class="analysis-details">
+      <summary>1文字ずつの判定を見る</summary>
+
+
+   <div id="charStrip" class="char-strip"></div>
+
+   <table class="analysis-table" aria-label="1文字ずつ判定">
+   <thead>
+    <tr>
+    <th>文字</th>
+    <th>コード</th>
+    <th>めやす</th>
+    <th>せつめい</th>
+    </tr>
+   </thead>
+   <tbody id="analysisBody"></tbody>
+   </table>
+     </details>
+
+  </section>
+
+  <section class="card">
+   <h2>まとめてコピー</h2>
+   <p class="small">特殊文字をまとめてコピーしたい人向けです。特殊文字候補と、上付きアルファベット候補を分けて表示しています。</p>
+   <div id="copySections"></div>
+  </section>
+  </main>
+ </div>
  </div>
 
  <div id="toast" class="toast">コピーしました</div>
 
  <script>
-  const GROUPS = [
-   {
-    id: "reported",
-    label: "おすすめ",
-    level: "reported",
-    note: "で比較的強い候補です。普通文字・ツ・キリル文字はパレットから外しています。",
-    chars: "ΨΛΞǃ"
-   },
-   {
-    id: "single",
-    label: "シンプル記号",
-    level: "single",
-    note: "少しクセはありますが、試す価値のある特殊文字です。普通文字・キリル文字は除いています。",
-    chars: "ːϟℜζ〆שکﱞٌّ"
-   },
-   {
-    id: "Faces",
-    label: "顔文字",
-    level: "single",
-    note: "顔文字でよく使われる部品です。ᴥを含みます。キリル文字は除外しています。",
-    chars: "ʕᵒᴥᵔʔʚɞ"
-   },
-   {
-    id: "Marks",
-    label: "かざり記号",
-    level: "single",
-    note: "名前の装飾に使いやすい記号です。",
-    chars: "ए〇تωαـﮩ٨"
-   },
-   {
-    id: "superscriptAlphabet",
-    label: "上付き英字",
-    level: "risk",
-    note: "上付き風アルファベット候補です。通常ASCIIは混ぜていません。Q/qは専用の完全な上付きLatinが弱いため、見た目候補としてᴽ/ᵠを入れています。",
-    chars: "ᴬᴮᶜᴰᴱᶠᴳᴴᴵᴶᴷᴸᴹᴺᴼᴾᴽᵠᴿˢᵀᵁⱽᵂˣʸᶻᵃᵇᵈᵉᵍʰⁱʲᵏˡᵐⁿᵒᵖʳᵗᵘᵛʷ"
-   },
-   {
-    id: "superscriptExtended",
-    label: "上付き拡張",
-    level: "risk",
-    note: "UnicodeのModifier Letter / Phonetic Extensions系です。名前装飾で使われる可能性がある拡張候補です。",
-    chars: "ʱʴʵʶˠˤᵄᵅᵆᵊᵋᵌᵑᵓᵕᵝᵞᵟᵠᵡᶝᶞᶟᶡᶢᶣᶤᶥᶦᶧᶨᶩᶪᶫᶬᶭᶮᶯᶰᶱᶲᶳᶴᶵᶶᶷᶸᶹᶺᶼᶽᶾᶿ"
-   },
-   {
-    id: "displayRiskSuperscript",
-    label: "上付き数字",
-    level: "risk",
-    note: "小さく上に付く数字や記号です。",
-    chars: "⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾"
-   },
-   {
-    id: "subscript",
-    label: "下付き",
-    level: "risk",
-    note: "上付きと一緒に使われやすい下付き候補です。Epic公式保証ではありません。",
-    chars: "₀₁₂₃₄₅₆₇₈₉₊₋₌₍₎ₐₑₒₓₕₖₗₘₙₚₛₜᵢᵣᵤᵥ"
-   },
-   {
-    id: "displayRiskAccent",
-    label: "アクセント",
-    level: "risk",
-    note: "アクセント系の候補です。Epic/Fortniteでの表示は環境差があります。",
-    chars: "æøūéÆÿÂâōīµÄËḦÏÖÜẄẌŸäëḧïöüẅẍ"
-   },
-   {
-    id: "displayRiskSymbols",
-    label: "表示注意",
-    level: "risk",
-    note: "表示崩れ注意の記号候補です。☠のような根拠の弱い装飾記号は入れていません。",
-    chars: "†™¿‡"
-   },
-   {
-    id: "invisible",
-    label: "不可視",
-    level: "invisible",
-    note: "見えない文字です。検索しづらくなるため非推奨です。",
-    chars: "ㅤᅟ"
-   }
-  ];
+ const GROUPS = [
+      {
+        id: "recommended",
+        label: "おすすめ",
+        level: "reported",
+        note: "まずはこれ。",
+        chars: "ΨΛΞǃ"
+      },
+      {
+        id: "simpleSymbols",
+        label: "かんたん記号",
+        level: "single",
+        note: "ちょっと飾れます。",
+        chars: "ːϟℜζ〆שک〇تωαـﮩ٨"
+      },
+      {
+        id: "emoticons",
+        label: "顔文字",
+        level: "single",
+        note: "顔みたいにできます。",
+        chars: "ʕᵒᴥᵔʔʚɞ"
+      },
+      {
+        id: "cuteMarks",
+        label: "かざり記号",
+        level: "risk",
+        note: "かわいいけど、文字化けするかも。",
+        chars: "ง𖦹⪧𓂂"
+      },
+      {
+        id: "superscriptAlpha",
+        label: "上付き英字",
+        level: "risk",
+        note: "小さい英字みたいな文字です。",
+        chars: "ᴬᴮᶜᴰᴱᶠᴳᴴᴵᴶᴷᴸᴹᴺᴼᴾᴽᵠᴿˢᵀᵁⱽᵂˣʸᶻᵃᵇᶜᵈᵉᶠᵍʰⁱʲᵏˡᵐⁿᵒᵖʳˢᵗᵘᵛʷ"
+      },
+      {
+        id: "superscriptExtended",
+        label: "上付き拡張",
+        level: "risk",
+        note: "小さい飾り文字です。",
+        chars: "ʱʴʵʶˠˤᵄᵅᵆᵊᵋᵌᵑᵓᵕᵝᵞᵟᵠᵡᶝᶞᶟᶡᶢᶣᶤᶥᶦᶧᶨᶩᶪᶫᶬᶭᶮᶯᶰᶱᶲᶳᶴᶵᶶᶷᶸᶹᶺᶼᶽᶾᶿ"
+      },
+      {
+        id: "superscriptNum",
+        label: "上付き数字",
+        level: "risk",
+        note: "小さい数字です。",
+        chars: "⁰¹²³⁴⁵⁶⁷⁸⁹⁺⁻⁼⁽⁾"
+      },
+      {
+        id: "subscript",
+        label: "下付き",
+        level: "risk",
+        note: "下につく小さい文字です。",
+        chars: "₀₁₂₃₄₅₆₇₈₉₊₋₌₍₎ₐₑₒₓₕₖₗₘₙₚₛₜᵢᵣᵤᵥ"
+      },
+      {
+        id: "accent",
+        label: "アクセント",
+        level: "risk",
+        note: "海外っぽく見えます。",
+        chars: "æøūéÆÿÂâōīµÄËḦÏÖÜẄẌŸäëḧïöüẅẍåöüñçèêëïîôûáíóúßłŁØœŒþÞðÐ"
+      },
+      {
+        id: "mojibake",
+        label: "文字化けするかも",
+        level: "risk",
+        note: "□や?になるかも。",
+        chars: "†™¿‡"
+      },
+      {
+        id: "invisible",
+        label: "不可視",
+        level: "invisible",
+        note: "見えないのでおすすめしません。",
+        chars: "ㅤᅟ"
+      }
+    ];
 
-  const REPORT_ONLY_CHARS = {
-   "ツ": {
-    level: "reported",
-    category: "🟡 通りやすそう",
-    note: "普通のカタカナなので候補パレットには表示していません。入力時のみ個別判定します。"
-   },
-   "あ": {
-    level: "single",
-    category: "🟠 試す価値あり",
-    note: "普通のひらがななので候補パレットには表示していません。入力時のみ個別判定します。"
-   },
-   "シ": {
-    level: "single",
-    category: "🟠 試す価値あり",
-    note: "普通のカタカナなので候補パレットには表示していません。入力時のみ個別判定します。"
-   },
-   "ヤ": {
-    level: "single",
-    category: "🟠 試す価値あり",
-    note: "普通のカタカナなので候補パレットには表示していません。入力時のみ個別判定します。"
-   }
-  };
-
-  const SPECIAL_NOTES = {
-   "!": { level: "blocked", label: "❌ 通常の ! は非推奨", note: "代替として ǃ が使われることがあります。" },
-   "！": { level: "risk", label: "⚠️ 全角びっくり", note: "通る可能性はありますが、ǃ の方が報告は強めです。" },
-   " ": { level: "blocked", label: "❌ 半角空白", note: "表示名では弾かれやすい文字です。" },
-   "_": { level: "safe", label: "✅ 安全寄り", note: "一般的なID文字として扱います。" },
-   "-": { level: "unknown", label: "🔵 未分類", note: "使用できる可能性はありますが、このDBでは未検証扱いです。" }
-  };
-
-  const LEVEL_LABELS = {
-   safe: "✅ 安全寄り",
-   reported: "🟡 通りやすそう",
-   single: "🟠 試す価値あり",
-   risk: "⚠️ 表示注意",
-   invisible: "🔴 不可視・非推奨",
-   blocked: "❌ 非推奨",
-   unknown: "🔵 未分類"
-  };
-
-  const LEVEL_SCORE = {
-   safe: 0,
-   reported: 1,
-   single: 2,
-   unknown: 3,
-   risk: 4,
-   invisible: 5,
-   blocked: 6
-  };
-
-  const input = document.getElementById("nameInput");
-  const searchInput = document.getElementById("searchInput");
-  const lengthPill = document.getElementById("lengthPill");
-  const categoryPill = document.getElementById("categoryPill");
-  const statusBox = document.getElementById("statusBox");
-  const charStrip = document.getElementById("charStrip");
-  const analysisBody = document.getElementById("analysisBody");
-  const palette = document.getElementById("palette");
-  const tabs = document.getElementById("tabs");
-  const copySections = document.getElementById("copySections");
-  const toast = document.getElementById("toast");
-
-  let activeGroupId = "all";
-
-  const charMap = buildCharMap(GROUPS);
-
-  function buildCharMap(groups) {
-   const map = new Map();
-
-   for (const group of groups) {
-    for (const ch of splitGraphemes(group.chars)) {
-     if (!ch) continue;
-     if (!map.has(ch) || LEVEL_SCORE[group.level] < LEVEL_SCORE[map.get(ch).level]) {
-      map.set(ch, {
-       char: ch,
-       groupId: group.id,
-       category: group.label,
-       level: group.level,
-       note: group.note
-      });
-     }
-    }
-   }
-
-   for (const [ch, data] of Object.entries(REPORT_ONLY_CHARS)) {
-    map.set(ch, {
-     char: ch,
-     groupId: "report-only",
-     category: data.category,
-     level: data.level,
-     note: data.note
-    });
-   }
-
-   for (const [ch, data] of Object.entries(SPECIAL_NOTES)) {
-    map.set(ch, {
-     char: ch,
-     groupId: "special",
-     category: data.label,
-     level: data.level,
-     note: data.note
-    });
-   }
-
-   return map;
+ const REPORT_ONLY_CHARS = {
+  "ツ": {
+  level: "reported",
+  category: "🟡 通りやすそう",
+  note: "ふつうのカタカナです。"
+  },
+  "あ": {
+  level: "single",
+  category: "🟠 試す価値あり",
+  note: "ふつうのひらがなです。"
+  },
+  "シ": {
+  level: "single",
+  category: "🟠 試す価値あり",
+  note: "ふつうのカタカナです。"
+  },
+  "ヤ": {
+  level: "single",
+  category: "🟠 試す価値あり",
+  note: "ふつうのカタカナです。"
   }
+ };
 
-  function splitGraphemes(text) {
-   if (window.Intl && Intl.Segmenter) {
-    const segmenter = new Intl.Segmenter("ja", { granularity: "grapheme" });
-    return [...segmenter.segment(text)].map(x => x.segment);
-   }
-   return Array.from(text);
+ const SPECIAL_NOTES = {
+      "!": { level: "blocked", label: "❌ ! はおすすめしません", note: "かわりに ǃ を使ってみてね。" },
+      "！": { level: "risk", label: "⚠️ 全角びっくり", note: "文字化けするかも。" },
+      " ": { level: "blocked", label: "❌ 半角空白", note: "使えないことが多いです。" },
+      "_": { level: "safe", label: "✅ 安全寄り", note: "使いやすいです。" },
+      "-": { level: "unknown", label: "🔵 わかりません", note: "まだよくわかりません。" }
+    };
+
+ const LEVEL_SCORE = {
+  safe: 0,
+  reported: 1,
+  single: 2,
+  unknown: 3,
+  risk: 4,
+  invisible: 5,
+  blocked: 6
+ };
+
+ const input = document.getElementById("nameInput");
+ const searchInput = document.getElementById("searchInput");
+ const lengthPill = document.getElementById("lengthPill");
+ const categoryPill = document.getElementById("categoryPill");
+ const statusBox = document.getElementById("statusBox");
+ const charStrip = document.getElementById("charStrip");
+ const analysisBody = document.getElementById("analysisBody");
+ const palette = document.getElementById("palette");
+ const tabs = document.getElementById("tabs");
+ const copySections = document.getElementById("copySections");
+ const toast = document.getElementById("toast");
+
+ let activeGroupId = "all";
+
+ const charMap = buildCharMap(GROUPS);
+
+ const MAX_NAME_LENGTH = 16;
+
+ function limitNameText(text) {
+  return splitGraphemes(text.normalize("NFC")).slice(0, MAX_NAME_LENGTH).join("");
+ }
+
+ function setNameValue(text, showLimitToast = false) {
+  const limited = limitNameText(text);
+  input.value = limited;
+  renderAnalysis();
+  if (showLimitToast && limited !== text) {
+   showToast("16文字までです");
   }
+ }
 
-  function codePoints(str) {
-   return [...str].map(ch =>
-    "U+" + ch.codePointAt(0).toString(16).toUpperCase().padStart(4, "0")
-   ).join(" ");
-  }
 
-  function visibleChar(ch) {
-   if (ch === " ") return "半角空白";
-   if (ch === "\n") return "改行";
-   if (/^\p{White_Space}$/u.test(ch)) return "空白";
-   if (["ㅤ", "ᅟ", "⠀"].includes(ch)) return "不可視";
-   return ch;
-  }
+ function buildCharMap(groups) {
+  const map = new Map();
 
-  function classify(ch) {
-   if (/^[A-Za-z0-9]$/.test(ch)) {
-    return {
-     char: ch,
-     groupId: "builtin-safe",
-     category: "✅ 安全寄り",
-     level: "safe",
-     note: "普通のASCII英数字です。候補パレットには表示していませんが、入力時は安全寄りとして判定します。"
-    };
-   }
-
-   if (/^[Ａ-Ｚａ-ｚ０-９]$/u.test(ch)) {
-    return {
-     char: ch,
-     groupId: "report-only-fullwidth",
-     category: "⚠️ 表示崩れ注意：全角英数字",
-     level: "risk",
-     note: "全角英数字です。普通文字に見えるため候補パレットには表示していません。"
-    };
-   }
-
-   if (/^\p{Script=Cyrillic}$/u.test(ch)) {
-    return {
-     char: ch,
-     groupId: "cyrillic-hidden",
-     category: "🔴 キリル文字・非推奨",
-     level: "invisible",
-     note: "キリル同形文字は検索困難化しやすく、今回は候補から除外しています。"
-    };
-   }
-
-   if (charMap.has(ch)) return charMap.get(ch);
-
-   if (/[\u0000-\u001F\u007F]/.test(ch)) {
-    return {
-     char: ch,
-     groupId: "special",
-     category: "❌ 制御文字",
-     level: "blocked",
-     note: "制御文字はIDには不向きです。"
-    };
-   }
-
-   if (/\p{Extended_Pictographic}/u.test(ch)) {
-    return {
-     char: ch,
-     groupId: "special",
-     category: "❌ 絵文字",
-     level: "blocked",
-     note: "絵文字は弾かれる可能性が高いです。"
-    };
-   }
-
-   if (/^[ぁ-ゖァ-ヺー]$/u.test(ch)) {
-    return {
-     char: ch,
-     groupId: "ordinary-kana",
-     category: "🔵 普通のかな・カナ",
-     level: "unknown",
-     note: "普通のひらがな・カタカナです。候補パレットには表示していません。Epic側の最終判定は未保証です。"
-    };
-   }
-
-   if (/^\p{Letter}$/u.test(ch) || /^\p{Number}$/u.test(ch)) {
-    return {
-     char: ch,
-     groupId: "unknown",
-     category: "🔵 Unicode文字・未分類",
-     level: "unknown",
-     note: "文字としては妥当ですが、このDBでは通りやすそう未確認です。候補パレットには表示していません。"
-    };
-   }
-
-   return {
+  for (const group of groups) {
+  for (const ch of splitGraphemes(group.chars)) {
+   if (!ch) continue;
+   if (!map.has(ch) || LEVEL_SCORE[group.level] < LEVEL_SCORE[map.get(ch).level]) {
+   map.set(ch, {
     char: ch,
-    groupId: "unknown",
-    category: "🔵 記号・未分類",
-    level: "unknown",
-    note: "Epic側で弾かれる可能性があります。"
-   };
-  }
-
-  function analyzeName(value) {
-   const chars = splitGraphemes(value.normalize("NFC"));
-   const items = chars.map(ch => ({
-    ch,
-    ...classify(ch)
-   }));
-
-   const maxLevel = items.reduce((max, item) => {
-    return LEVEL_SCORE[item.level] > LEVEL_SCORE[max] ? item.level : max;
-   }, "safe");
-
-   const errors = [];
-   if (chars.length > 0 && chars.length < 3) errors.push("3文字未満です。");
-   if (chars.length > 16) errors.push("16文字を超えています。");
-   if (items.some(x => x.level === "blocked")) errors.push("非推奨文字が含まれています。");
-   if (items.some(x => x.level === "invisible")) errors.push("不可視文字が含まれています。");
-
-   return { chars, items, maxLevel, errors };
-  }
-
-  function renderAnalysis() {
-   const value = input.value;
-   const result = analyzeName(value);
-
-   lengthPill.textContent = `${result.chars.length} / 16文字`;
-
-   if (result.chars.length === 0) {
-    categoryPill.textContent = "未入力";
-    statusBox.className = "status risk";
-    statusBox.textContent = "Epic IDを入力するか、下の文字パレットから追加してください。";
-   } else {
-    categoryPill.textContent = LEVEL_LABELS[result.maxLevel];
-
-    if (result.errors.length > 0) {
-     statusBox.className = "status risk";
-     statusBox.textContent = "要修正: " + result.errors.join(" / ");
-    } else if (result.maxLevel === "safe") {
-     statusBox.className = "status safe";
-     statusBox.textContent = "かなり安全寄りです。英数字中心なので、最も保守的な構成です。";
-    } else if (result.maxLevel === "reported") {
-     statusBox.className = "status reported";
-     statusBox.textContent = "通る可能性は高めです。よく使われるタイプの文字が含まれています。";
-    } else if (result.maxLevel === "single") {
-     statusBox.className = "status single";
-     statusBox.textContent = "使える可能性はありますが、候補の文字が含まれます。";
-    } else {
-     statusBox.className = "status risk";
-     statusBox.textContent = "注意が必要です。未分類・表示崩れ・非推奨の文字が含まれます。";
-    }
-   }
-
-   charStrip.innerHTML = "";
-   analysisBody.innerHTML = "";
-
-   for (const item of result.items) {
-    const chip = document.createElement("span");
-    chip.className = `chip ${item.level}`;
-    chip.textContent = `${visibleChar(item.ch)} ${LEVEL_LABELS[item.level].split(" ")[0] || ""}`;
-    chip.title = `${codePoints(item.ch)} ${item.note}`;
-    charStrip.appendChild(chip);
-
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-     <td><strong>${escapeHtml(visibleChar(item.ch))}</strong></td>
-     <td><code>${escapeHtml(codePoints(item.ch))}</code></td>
-     <td>${escapeHtml(LEVEL_LABELS[item.level])}</td>
-     <td>${escapeHtml(item.note)}</td>
-    `;
-    analysisBody.appendChild(tr);
-   }
-
-   if (result.items.length === 0) {
-    analysisBody.innerHTML = `
-     <tr>
-      <td colspan="4" class="small">入力すると、ここに1文字ずつの判定が表示されます。</td>
-     </tr>
-    `;
+    groupId: group.id,
+    category: group.label,
+    level: group.level,
+    note: group.note
+   });
    }
   }
-
-  function renderTabs() {
-   tabs.innerHTML = "";
-
-   const allBtn = document.createElement("button");
-   allBtn.className = `tab ${activeGroupId === "all" ? "active" : ""}`;
-   allBtn.textContent = "全部表示";
-   allBtn.onclick = () => {
-    activeGroupId = "all";
-    renderTabs();
-    renderPalette();
-   };
-   tabs.appendChild(allBtn);
-
-   for (const group of GROUPS) {
-    const btn = document.createElement("button");
-    btn.className = `tab ${activeGroupId === group.id ? "active" : ""}`;
-    btn.textContent = group.label;
-    btn.onclick = () => {
-     activeGroupId = group.id;
-     renderTabs();
-     renderPalette();
-    };
-    tabs.appendChild(btn);
-   }
   }
 
-  function renderPalette() {
-   const query = searchInput.value.trim().toLowerCase();
-   palette.innerHTML = "";
-
-   const groups = activeGroupId === "all"
-    ? GROUPS
-    : GROUPS.filter(g => g.id === activeGroupId);
-
-   const entries = [];
-
-   for (const group of groups) {
-    for (const ch of splitGraphemes(group.chars)) {
-     if (!ch) continue;
-
-     const meta = classify(ch);
-     const searchable = [
-      ch,
-      visibleChar(ch),
-      codePoints(ch),
-      group.label,
-      group.note,
-      meta.note
-     ].join(" ").toLowerCase();
-
-     if (!query || searchable.includes(query)) {
-      entries.push({ ch, group, meta });
-     }
-    }
-   }
-
-   const seen = new Set();
-
-   for (const entry of entries) {
-    if (seen.has(entry.ch)) continue;
-    seen.add(entry.ch);
-
-    const card = document.createElement("button");
-    card.className = `char-card ${entry.meta.level}`;
-    card.type = "button";
-    card.title = `${entry.group.label}\n${codePoints(entry.ch)}\n${entry.meta.note}`;
-    card.innerHTML = `
-     <span class="big">${escapeHtml(visibleChar(entry.ch))}</span>
-     <span class="code">${escapeHtml(codePoints(entry.ch))}</span>
-    `;
-    card.onclick = () => {
-     input.value += entry.ch;
-     renderAnalysis();
-     input.focus();
-    };
-    palette.appendChild(card);
-   }
-
-   if (!palette.children.length) {
-    const empty = document.createElement("div");
-    empty.className = "small";
-    empty.textContent = "該当する文字がありません。";
-    palette.appendChild(empty);
-   }
+  for (const [ch, data] of Object.entries(REPORT_ONLY_CHARS)) {
+  map.set(ch, {
+   char: ch,
+   groupId: "report-only",
+   category: data.category,
+   level: data.level,
+   note: data.note
+  });
   }
 
-  function renderCopySections() {
-   copySections.innerHTML = "";
-
-   for (const group of GROUPS) {
-    const details = document.createElement("details");
-    details.open = !["invisible", "displayRisk", "decorative"].includes(group.id);
-
-    const charsOneLine = splitGraphemes(group.chars).join("");
-    details.innerHTML = `
-     <summary>${escapeHtml(group.label)}</summary>
-     <p class="small">${escapeHtml(group.note)}</p>
-     <textarea class="copy-block" readonly>${escapeHtml(charsOneLine)}</textarea>
-     <div class="button-row">
-      <button type="button">このカテゴリをコピー</button>
-     </div>
-    `;
-
-    details.querySelector("button").onclick = () => copyText(charsOneLine);
-    copySections.appendChild(details);
-   }
+  for (const [ch, data] of Object.entries(SPECIAL_NOTES)) {
+  map.set(ch, {
+   char: ch,
+   groupId: "special",
+   category: data.label,
+   level: data.level,
+   note: data.note
+  });
   }
 
-  function copyText(text) {
-   if (navigator.clipboard && window.isSecureContext) {
-    navigator.clipboard.writeText(text).then(() => showToast("コピーしました"));
-   } else {
-    const temp = document.createElement("textarea");
-    temp.value = text;
-    document.body.appendChild(temp);
-    temp.select();
-    document.execCommand("copy");
-    temp.remove();
-    showToast("コピーしました");
-   }
+  return map;
+ }
+
+ function splitGraphemes(text) {
+  if (window.Intl && Intl.Segmenter) {
+  const segmenter = new Intl.Segmenter("ja", { granularity: "grapheme" });
+  return [...segmenter.segment(text)].map(x => x.segment);
   }
+  return Array.from(text);
+ }
 
-  function showToast(message) {
-   toast.textContent = message;
-   toast.classList.add("show");
-   clearTimeout(showToast.timer);
-   showToast.timer = setTimeout(() => toast.classList.remove("show"), 1200);
-  }
+ function codePoints(str) {
+  return [...str].map(ch =>
+  "U+" + ch.codePointAt(0).toString(16).toUpperCase().padStart(4, "0")
+  ).join(" ");
+ }
 
-  function escapeHtml(text) {
-   return String(text)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
-  }
+ function visibleChar(ch) {
+  if (ch === " ") return "半角空白";
+  if (ch === "\n") return "改行";
+  if (/^\p{White_Space}$/u.test(ch)) return "空白";
+  if (["ㅤ", "ᅟ", "⠀"].includes(ch)) return "不可視";
+  return ch;
+ }
 
-  input.addEventListener("input", renderAnalysis);
-  searchInput.addEventListener("input", renderPalette);
-
-  document.getElementById("copyNameBtn").onclick = () => {
-   if (!input.value) return showToast("入力が空です");
-   copyText(input.value);
+ function classify(ch) {
+  if (/^[A-Za-z0-9]$/.test(ch)) {
+  return {
+   char: ch,
+   groupId: "builtin-safe",
+   category: "✅ 安全寄り",
+   level: "safe",
+   note: "使いやすいです。"
   };
+  }
 
-  document.getElementById("clearBtn").onclick = () => {
-   input.value = "";
-   renderAnalysis();
-   input.focus();
+  if (/^[Ａ-Ｚａ-ｚ０-９]$/u.test(ch)) {
+  return {
+   char: ch,
+   groupId: "report-only-fullwidth",
+   category: "⚠️ 文字化けするかも：全角英数字",
+   level: "risk",
+   note: "全角の英数字です。文字化けするかもしれません。"
   };
+  }
 
-  document.getElementById("keepSafeBtn").onclick = () => {
-   const kept = analyzeName(input.value).items
-    .filter(item => item.level === "safe")
-    .map(item => item.ch)
-    .join("");
-   input.value = kept;
-   renderAnalysis();
+  if (/^\p{Script=Cyrillic}$/u.test(ch)) {
+  return {
+   char: ch,
+   groupId: "cyrillic-hidden",
+   category: "🔴 キリル文字・おすすめしません",
+   level: "invisible",
+   note: "探しにくくなるのでおすすめしません。"
   };
+  }
 
-  document.getElementById("removeRiskBtn").onclick = () => {
-   const kept = analyzeName(input.value).items
-    .filter(item => !["risk", "invisible", "blocked", "unknown"].includes(item.level))
-    .map(item => item.ch)
-    .join("");
-   input.value = kept;
-   renderAnalysis();
+  if (charMap.has(ch)) return charMap.get(ch);
+
+  if (/[\u0000-\u001F\u007F]/.test(ch)) {
+  return {
+   char: ch,
+   groupId: "special",
+   category: "❌ 制御文字",
+   level: "blocked",
+   note: "IDには向きません。"
   };
+  }
 
-  document.getElementById("sampleBtn").onclick = () => {
-   input.value = "ΨΛǃᴥ";
-   renderAnalysis();
-   input.focus();
+  if (/\p{Extended_Pictographic}/u.test(ch)) {
+  return {
+   char: ch,
+   groupId: "special",
+   category: "❌ 絵文字",
+   level: "blocked",
+   note: "使えないかも。"
   };
+  }
 
+  if (/^[ぁ-ゖァ-ヺー]$/u.test(ch)) {
+  return {
+   char: ch,
+   groupId: "ordinary-kana",
+   category: "🔵 普通のかな・カナ",
+   level: "unknown",
+   note: "ふつうのかなです。"
+  };
+  }
+
+  if (/^\p{Letter}$/u.test(ch) || /^\p{Number}$/u.test(ch)) {
+  return {
+   char: ch,
+   groupId: "unknown",
+   category: "🔵 コード文字・未分類",
+   level: "unknown",
+   note: "文字としては妥当ですが、このツールでは通りやすそうまだよくわかりません。一覧には表示していません。"
+  };
+  }
+
+  return {
+  char: ch,
+  groupId: "unknown",
+  category: "🔵 記号・未分類",
+  level: "unknown",
+  note: "使えないかも。"
+  };
+ }
+
+ function analyzeName(value) {
+  const chars = splitGraphemes(value.normalize("NFC"));
+  const items = chars.map(ch => ({
+  ch,
+  ...classify(ch)
+  }));
+
+  const maxLevel = items.reduce((max, item) => {
+  return LEVEL_SCORE[item.level] > LEVEL_SCORE[max] ? item.level : max;
+  }, "safe");
+
+  const errors = [];
+  if (chars.length > 0 && chars.length < 3) errors.push("3文字未満です。");
+  if (chars.length > 16) errors.push("16文字までです。");
+  if (items.some(x => x.level === "blocked")) errors.push("おすすめしません文字が含まれています。");
+  if (items.some(x => x.level === "invisible")) errors.push("不可視文字が含まれています。");
+
+  return { chars, items, maxLevel, errors };
+ }
+
+ function renderAnalysis() {
+  const value = input.value;
+  const result = analyzeName(value);
+
+  lengthPill.textContent = `${result.chars.length} / 16文字`;
+
+  if (result.chars.length === 0) {
+  categoryPill.textContent = "未入力";
+  statusBox.className = "status risk";
+  statusBox.textContent = "文字をタップで追加できます。";
+  } else {
+  categoryPill.textContent = LEVEL_LABELS[result.maxLevel];
+
+  if (result.errors.length > 0) {
+   statusBox.className = "status risk";
+   statusBox.textContent = "要修正: " + result.errors.join(" / ");
+  } else if (result.maxLevel === "safe") {
+   statusBox.className = "status safe";
+   statusBox.textContent = "使いやすそうです。";
+  } else if (result.maxLevel === "reported") {
+   statusBox.className = "status reported";
+   statusBox.textContent = "通りやすそうです。";
+  } else if (result.maxLevel === "single") {
+   statusBox.className = "status single";
+   statusBox.textContent = "少しクセがあります。";
+  } else {
+   statusBox.className = "status risk";
+   statusBox.textContent = "文字化けするかもしれません。";
+  }
+  }
+
+  charStrip.innerHTML = "";
+  analysisBody.innerHTML = "";
+
+  for (const item of result.items) {
+  const chip = document.createElement("span");
+  chip.className = `chip ${item.level}`;
+  chip.textContent = `${visibleChar(item.ch)} ${LEVEL_LABELS[item.level].split(" ")[0] || ""}`;
+  chip.title = `${codePoints(item.ch)} ${item.note}`;
+  charStrip.appendChild(chip);
+
+  const tr = document.createElement("tr");
+  tr.innerHTML = `
+   <td><strong>${escapeHtml(visibleChar(item.ch))}</strong></td>
+   <td><code>${escapeHtml(codePoints(item.ch))}</code></td>
+   <td>${escapeHtml(LEVEL_LABELS[item.level])}</td>
+   <td>${escapeHtml(item.note)}</td>
+  `;
+  analysisBody.appendChild(tr);
+  }
+
+  if (result.items.length === 0) {
+  analysisBody.innerHTML = `
+   <tr>
+   <td colspan="4" class="small">入力すると、ここに1文字ずつの判定が表示されます。</td>
+   </tr>
+  `;
+  }
+ }
+
+ function renderTabs() {
+  tabs.innerHTML = "";
+
+  const allBtn = document.createElement("button");
+  allBtn.className = `tab ${activeGroupId === "all" ? "active" : ""}`;
+  allBtn.textContent = "全部表示";
+  allBtn.onclick = () => {
+  activeGroupId = "all";
   renderTabs();
   renderPalette();
-  renderCopySections();
+  };
+  tabs.appendChild(allBtn);
+
+  for (const group of GROUPS) {
+  const btn = document.createElement("button");
+  btn.className = `tab ${activeGroupId === group.id ? "active" : ""}`;
+  btn.textContent = group.label;
+  btn.onclick = () => {
+   activeGroupId = group.id;
+   renderTabs();
+   renderPalette();
+  };
+  tabs.appendChild(btn);
+  }
+ }
+
+ function renderPalette() {
+  const query = searchInput ? searchInput.value.trim().toLowerCase() : "";
+  palette.innerHTML = "";
+
+  const groups = activeGroupId === "all"
+  ? GROUPS
+  : GROUPS.filter(g => g.id === activeGroupId);
+
+  const entries = [];
+
+  for (const group of groups) {
+  for (const ch of splitGraphemes(group.chars)) {
+   if (!ch) continue;
+
+   const meta = classify(ch);
+   const searchable = [
+   ch,
+   visibleChar(ch),
+   codePoints(ch),
+   group.label,
+   group.note,
+   meta.note
+   ].join(" ").toLowerCase();
+
+   if (!query || searchable.includes(query)) {
+   entries.push({ ch, group, meta });
+   }
+  }
+  }
+
+  const seen = new Set();
+
+  for (const entry of entries) {
+  if (seen.has(entry.ch)) continue;
+  seen.add(entry.ch);
+
+  const card = document.createElement("button");
+  card.className = `char-card ${entry.meta.level}`;
+  card.type = "button";
+  card.title = `${entry.group.label}\n${codePoints(entry.ch)}\n${entry.meta.note}`;
+  card.innerHTML = `
+   <span class="big">${escapeHtml(visibleChar(entry.ch))}</span>
+   <span class="code">${escapeHtml(codePoints(entry.ch))}</span>
+  `;
+  card.onclick = () => {
+    const nextValue = input.value + entry.ch;
+    setNameValue(nextValue, true);
+    input.focus();
+   };
+  palette.appendChild(card);
+  }
+
+  if (!palette.children.length) {
+  const empty = document.createElement("div");
+  empty.className = "small";
+  empty.textContent = "該当する文字がありません。";
+  palette.appendChild(empty);
+  }
+ }
+
+ function renderCopySections() {
+  copySections.innerHTML = "";
+
+  for (const group of GROUPS) {
+  const details = document.createElement("details");
+  details.open = !["invisible", "displayRisk", "decorative"].includes(group.id);
+
+  const charsOneLine = splitGraphemes(group.chars).join("");
+  details.innerHTML = `
+   <summary>${escapeHtml(group.label)}</summary>
+   <p class="small">${escapeHtml(group.note)}</p>
+   <textarea class="copy-block" readonly>${escapeHtml(charsOneLine)}</textarea>
+   <div class="button-row">
+   <button type="button">このカテゴリをコピー</button>
+   </div>
+  `;
+
+  details.querySelector("button").onclick = () => copyText(charsOneLine);
+  copySections.appendChild(details);
+  }
+ }
+
+ function copyText(text) {
+  if (navigator.clipboard && window.isSecureContext) {
+  navigator.clipboard.writeText(text).then(() => showToast("コピーしました"));
+  } else {
+  const temp = document.createElement("textarea");
+  temp.value = text;
+  document.body.appendChild(temp);
+  temp.select();
+  document.execCommand("copy");
+  temp.remove();
+  showToast("コピーしました");
+  }
+ }
+
+ function showToast(message) {
+  toast.textContent = message;
+  toast.classList.add("show");
+  clearTimeout(showToast.timer);
+  showToast.timer = setTimeout(() => toast.classList.remove("show"), 1200);
+ }
+
+ function escapeHtml(text) {
+  return String(text)
+  .replaceAll("&", "&amp;")
+  .replaceAll("<", "&lt;")
+  .replaceAll(">", "&gt;")
+  .replaceAll('"', "&quot;")
+  .replaceAll("'", "&#039;");
+ }
+
+ input.addEventListener("input", () => {
+  const limited = limitNameText(input.value);
+  if (limited !== input.value) {
+   input.value = limited;
+   showToast("16文字までです");
+  }
   renderAnalysis();
+ });
+      if (limited !== input.value) {
+        input.value = limited;
+        showToast("16文字までです");
+      }
+      renderAnalysis();
+    });
+ if (searchInput) if (searchInput) searchInput.addEventListener("input", renderPalette);
+
+ document.getElementById("copyNameBtn").onclick = () => {
+  if (!input.value) return showToast("入力が空です");
+  copyText(input.value);
+ };
+
+ const clearBtn = document.getElementById("clearBtn");
+  if (clearBtn) clearBtn.onclick = () => {
+  input.value = "";
+  renderAnalysis();
+  input.focus();
+ };
+
+ const keepSafeBtn = document.getElementById("keepSafeBtn");
+  if (keepSafeBtn) keepSafeBtn.onclick = () => {
+  const kept = analyzeName(input.value).items
+  .filter(item => item.level === "safe")
+  .map(item => item.ch)
+  .join("");
+  input.value = kept;
+  renderAnalysis();
+ };
+
+ const removeRiskBtn = document.getElementById("removeRiskBtn");
+  if (removeRiskBtn) removeRiskBtn.onclick = () => {
+  const kept = analyzeName(input.value).items
+  .filter(item => !["risk", "invisible", "blocked", "unknown"].includes(item.level))
+  .map(item => item.ch)
+  .join("");
+  input.value = kept;
+  renderAnalysis();
+ };
+
+ const sampleBtn = document.getElementById("sampleBtn");
+  if (sampleBtn) sampleBtn.onclick = () => {
+  input.value = "ΨΛǃᴥ";
+  renderAnalysis();
+  input.focus();
+ };
+
+ renderTabs();
+ renderPalette();
+ renderCopySections();
+ renderAnalysis();
  </script>
 </body>
 </html>
