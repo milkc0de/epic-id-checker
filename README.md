@@ -20,7 +20,7 @@ Epic ID / Fortnite 表示名向けの特殊文字チェッカーです。
 公開URLは通常、次の形式になります。
 
 ```text
-https://<GitHubユーザー名>.github.io/<リポジトリ名>/
+https://milkc0de.github.io/epic-id-checker/
 ```
 
 ## Credit
