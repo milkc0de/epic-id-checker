@@ -932,7 +932,12 @@
    font-size: 22px !important;
   }
 
- </style>
+ 
+    .char-card.limit-reached {
+      opacity: .45;
+    }
+
+  </style>
 </head>
 <body>
  <div class="wrap">
@@ -949,7 +954,7 @@
   <section class="card">
    <h2>作成中のEpic ID</h2>
    <div class="input-row">
-   <input id="nameInput" type="text" placeholder="例: ΨΛǃᴥ" autocomplete="off" spellcheck="false" maxlength="64" inputmode="text" />
+   <input id="nameInput" type="text" placeholder="例: ΨΛǃᴥ" autocomplete="off" spellcheck="false" inputmode="text" / maxlength="64">
    <button id="copyNameBtn" class="primary">コピー</button>
    </div>
 
@@ -1308,7 +1313,7 @@
 
   const errors = [];
   if (chars.length > 0 && chars.length < 3) errors.push("3文字未満です。");
-  if (chars.length > 16) errors.push("16文字までです。");
+  if (chars.length > MAX_NAME_LENGTH) errors.push("16文字までです。");
   if (items.some(x => x.level === "blocked")) errors.push("おすすめしません文字が含まれています。");
   if (items.some(x => x.level === "invisible")) errors.push("不可視文字が含まれています。");
 
@@ -1319,7 +1324,7 @@
   const value = input.value;
   const result = analyzeName(value);
 
-  lengthPill.textContent = `${result.chars.length} / 16文字`;
+  lengthPill.textContent = `${result.chars.length} / ${MAX_NAME_LENGTH}文字`;
 
   if (result.chars.length === 0) {
   categoryPill.textContent = "未入力";
@@ -1514,20 +1519,12 @@
  }
 
  input.addEventListener("input", () => {
-  const limited = limitNameText(input.value);
-  if (limited !== input.value) {
-   input.value = limited;
-   showToast("16文字までです");
-  }
-  renderAnalysis();
+  setNameValue(input.value, true);
  });
-      if (limited !== input.value) {
-        input.value = limited;
-        showToast("16文字までです");
-      }
-      renderAnalysis();
-    });
- if (searchInput) if (searchInput) searchInput.addEventListener("input", renderPalette);
+
+ if (searchInput) {
+  searchInput.addEventListener("input", renderPalette);
+ }
 
  document.getElementById("copyNameBtn").onclick = () => {
   if (!input.value) return showToast("入力が空です");
@@ -1536,7 +1533,7 @@
 
  const clearBtn = document.getElementById("clearBtn");
   if (clearBtn) clearBtn.onclick = () => {
-  input.value = "";
+  setNameValue("");
   renderAnalysis();
   input.focus();
  };
@@ -1547,8 +1544,7 @@
   .filter(item => item.level === "safe")
   .map(item => item.ch)
   .join("");
-  input.value = kept;
-  renderAnalysis();
+  setNameValue(kept);
  };
 
  const removeRiskBtn = document.getElementById("removeRiskBtn");
@@ -1557,14 +1553,12 @@
   .filter(item => !["risk", "invisible", "blocked", "unknown"].includes(item.level))
   .map(item => item.ch)
   .join("");
-  input.value = kept;
-  renderAnalysis();
+  setNameValue(kept);
  };
 
  const sampleBtn = document.getElementById("sampleBtn");
   if (sampleBtn) sampleBtn.onclick = () => {
-  input.value = "ΨΛǃᴥ";
-  renderAnalysis();
+  setNameValue("ΨΛǃᴥ");
   input.focus();
  };
 
