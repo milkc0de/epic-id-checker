@@ -937,6 +937,12 @@
       opacity: .45;
     }
 
+  
+    .analysis-table th:nth-child(3),
+    .analysis-table td:nth-child(3) {
+      white-space: nowrap;
+    }
+
   </style>
 </head>
 <body>
@@ -981,7 +987,6 @@
     <th>文字</th>
     <th>コード</th>
     <th>めやす</th>
-    <th>せつめい</th>
     </tr>
    </thead>
    <tbody id="analysisBody"></tbody>
@@ -1111,6 +1116,16 @@
       " ": { level: "blocked", label: "❌ 半角空白", note: "使えないことが多いです。" },
       "_": { level: "safe", label: "✅ 安全寄り", note: "使いやすいです。" },
       "-": { level: "unknown", label: "🔵 わかりません", note: "まだよくわかりません。" }
+    };
+
+ const LEVEL_LABELS = {
+      safe: "✅ 安全寄り",
+      reported: "🟡 通りやすそう",
+      single: "🟠 試す価値あり",
+      risk: "⚠️ 文字化けするかも",
+      invisible: "🔴 不可視・おすすめしません",
+      blocked: "❌ おすすめしません",
+      unknown: "🔵 わかりません"
     };
 
  const LEVEL_SCORE = {
@@ -1366,7 +1381,6 @@
    <td><strong>${escapeHtml(visibleChar(item.ch))}</strong></td>
    <td><code>${escapeHtml(codePoints(item.ch))}</code></td>
    <td>${escapeHtml(LEVEL_LABELS[item.level])}</td>
-   <td>${escapeHtml(item.note)}</td>
   `;
   analysisBody.appendChild(tr);
   }
@@ -1374,7 +1388,7 @@
   if (result.items.length === 0) {
   analysisBody.innerHTML = `
    <tr>
-   <td colspan="4" class="small">入力すると、ここに1文字ずつの判定が表示されます。</td>
+   <td colspan="3" class="small">入力すると、ここに1文字ずつの判定が表示されます。</td>
    </tr>
   `;
   }
