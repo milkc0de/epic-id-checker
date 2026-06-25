@@ -951,7 +951,7 @@
   <h1>Epic ID 文字チェッカー 🎮</h1>
   <p class="lead">Fortnite / Epic ID向けに、通りやすそうベースの特殊文字候補だけをクリックしてIDを組み立て、1文字ずつ判定できます。普通文字・ツ・キリル文字は一覧に出しません。</p>
   <div class="notice">
-  ぜったい使えるとは限りません。使えそうな文字を集めています。
+  PC版フォートナイトで文字化けしないかチェックできます。
   </div>
  </header>
 
@@ -986,7 +986,7 @@
     <tr>
     <th>文字</th>
     <th>コード</th>
-    <th>めやす</th>
+    <th>PC表示</th>
     </tr>
    </thead>
    <tbody id="analysisBody"></tbody>
@@ -1119,11 +1119,11 @@
     };
 
  const LEVEL_LABELS = {
-      safe: "✅ 安全寄り",
-      reported: "🟡 通りやすそう",
-      single: "🟠 試す価値あり",
+      safe: "✅ 文字化けしない",
+      reported: "🟡 たぶん見える",
+      single: "🟠 試して確認",
       risk: "⚠️ 文字化けするかも",
-      invisible: "🔴 不可視・おすすめしません",
+      invisible: "🔴 おすすめしません",
       blocked: "❌ おすすめしません",
       unknown: "🔵 わかりません"
     };
@@ -1233,87 +1233,201 @@
   return ch;
  }
 
- function classify(ch) {
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+
+ 
+function isBasicKanji(codePoint) {
+  return codePoint >= 0x4E00 && codePoint <= 0x9FFF;
+}
+
+function isCjkExtensionKanji(codePoint) {
+  return (
+    (codePoint >= 0x3400 && codePoint <= 0x4DBF) ||
+    (codePoint >= 0x20000 && codePoint <= 0x2A6DF) ||
+    (codePoint >= 0x2A700 && codePoint <= 0x2B73F) ||
+    (codePoint >= 0x2B740 && codePoint <= 0x2B81F) ||
+    (codePoint >= 0x2B820 && codePoint <= 0x2CEAF) ||
+    (codePoint >= 0x2CEB0 && codePoint <= 0x2EBEF) ||
+    (codePoint >= 0x30000 && codePoint <= 0x3134F) ||
+    (codePoint >= 0x31350 && codePoint <= 0x323AF)
+  );
+}
+
+function isCjkCompatibilityKanji(codePoint) {
+  return (
+    (codePoint >= 0xF900 && codePoint <= 0xFAFF) ||
+    (codePoint >= 0x2F800 && codePoint <= 0x2FA1F)
+  );
+}
+
+function isKana(codePoint) {
+  return (
+    (codePoint >= 0x3040 && codePoint <= 0x309F) ||
+    (codePoint >= 0x30A0 && codePoint <= 0x30FF) ||
+    (codePoint >= 0x31F0 && codePoint <= 0x31FF)
+  );
+}
+
+function isFullwidthAscii(codePoint) {
+  return codePoint >= 0xFF01 && codePoint <= 0xFF5E;
+}
+
+function isVariationSelector(codePoint) {
+  return (
+    (codePoint >= 0xFE00 && codePoint <= 0xFE0F) ||
+    (codePoint >= 0xE0100 && codePoint <= 0xE01EF)
+  );
+}
+
+function isCombiningMarkChar(ch) {
+  return /\p{Mark}/u.test(ch);
+}
+
+function detectPcFortniteMojibakeRisk(ch) {
+  const cps = [...ch].map(c => c.codePointAt(0));
+
+  if (cps.some(isVariationSelector)) {
+    return {
+      level: "risk",
+      category: "⚠️ 文字化けするかも",
+      note: "形が変わるかも。"
+    };
+  }
+
+  if (cps.some(isCjkCompatibilityKanji)) {
+    return {
+      level: "risk",
+      category: "⚠️ 文字化けするかも",
+      note: "□になるかも。"
+    };
+  }
+
+  if (cps.some(isCjkExtensionKanji)) {
+    return {
+      level: "risk",
+      category: "⚠️ 文字化けするかも",
+      note: "めずらしい漢字です。"
+    };
+  }
+
+  if (isCombiningMarkChar(ch)) {
+    return {
+      level: "risk",
+      category: "⚠️ 文字化けするかも",
+      note: "形がくずれるかも。"
+    };
+  }
+
+  return null;
+}
+
+function classify(ch) {
+  const cps = [...ch].map(c => c.codePointAt(0));
+
   if (/^[A-Za-z0-9]$/.test(ch)) {
-  return {
-   char: ch,
-   groupId: "builtin-safe",
-   category: "✅ 安全寄り",
-   level: "safe",
-   note: "使いやすいです。"
-  };
+    return {
+      char: ch,
+      groupId: "ascii-safe",
+      category: "✅ 文字化けしない",
+      level: "safe",
+      note: "使いやすいです。"
+    };
   }
 
-  if (/^[Ａ-Ｚａ-ｚ０-９]$/u.test(ch)) {
-  return {
-   char: ch,
-   groupId: "report-only-fullwidth",
-   category: "⚠️ 文字化けするかも：全角英数字",
-   level: "risk",
-   note: "全角の英数字です。文字化けするかもしれません。"
-  };
+  if (cps.some(isFullwidthAscii)) {
+    return {
+      char: ch,
+      groupId: "fullwidth-safe",
+      category: "✅ 文字化けしない",
+      level: "safe",
+      note: "全角文字です。"
+    };
   }
 
-  if (/^\p{Script=Cyrillic}$/u.test(ch)) {
-  return {
-   char: ch,
-   groupId: "cyrillic-hidden",
-   category: "🔴 キリル文字・おすすめしません",
-   level: "invisible",
-   note: "探しにくくなるのでおすすめしません。"
-  };
+  if (cps.some(isKana)) {
+    return {
+      char: ch,
+      groupId: "kana-safe",
+      category: "✅ 文字化けしない",
+      level: "safe",
+      note: "かな文字です。"
+    };
+  }
+
+  if (cps.some(isBasicKanji)) {
+    return {
+      char: ch,
+      groupId: "basic-kanji-safe",
+      category: "✅ 文字化けしない",
+      level: "safe",
+      note: "ふつうの漢字です。"
+    };
+  }
+
+  const pcRisk = detectPcFortniteMojibakeRisk(ch);
+  if (pcRisk) {
+    return {
+      char: ch,
+      groupId: "pc-mojibake-risk",
+      category: pcRisk.category,
+      level: pcRisk.level,
+      note: pcRisk.note
+    };
   }
 
   if (charMap.has(ch)) return charMap.get(ch);
 
   if (/[\u0000-\u001F\u007F]/.test(ch)) {
-  return {
-   char: ch,
-   groupId: "special",
-   category: "❌ 制御文字",
-   level: "blocked",
-   note: "IDには向きません。"
-  };
+    return {
+      char: ch,
+      groupId: "control",
+      category: "❌ おすすめしません",
+      level: "blocked",
+      note: "IDには向きません。"
+    };
   }
 
   if (/\p{Extended_Pictographic}/u.test(ch)) {
-  return {
-   char: ch,
-   groupId: "special",
-   category: "❌ 絵文字",
-   level: "blocked",
-   note: "使えないかも。"
-  };
-  }
-
-  if (/^[ぁ-ゖァ-ヺー]$/u.test(ch)) {
-  return {
-   char: ch,
-   groupId: "ordinary-kana",
-   category: "🔵 普通のかな・カナ",
-   level: "unknown",
-   note: "ふつうのかなです。"
-  };
+    return {
+      char: ch,
+      groupId: "emoji",
+      category: "❌ おすすめしません",
+      level: "blocked",
+      note: "使えないかも。"
+    };
   }
 
   if (/^\p{Letter}$/u.test(ch) || /^\p{Number}$/u.test(ch)) {
-  return {
-   char: ch,
-   groupId: "unknown",
-   category: "🔵 コード文字・未分類",
-   level: "unknown",
-   note: "文字としては妥当ですが、このツールでは通りやすそうまだよくわかりません。一覧には表示していません。"
-  };
+    return {
+      char: ch,
+      groupId: "unknown-letter",
+      category: "🔵 わかりません",
+      level: "unknown",
+      note: "まだよくわかりません。"
+    };
   }
 
   return {
-  char: ch,
-  groupId: "unknown",
-  category: "🔵 記号・未分類",
-  level: "unknown",
-  note: "使えないかも。"
+    char: ch,
+    groupId: "unknown-symbol",
+    category: "🔵 わかりません",
+    level: "unknown",
+    note: "使えないかも。"
   };
- }
+}
 
  function analyzeName(value) {
   const chars = splitGraphemes(value.normalize("NFC"));
@@ -1353,16 +1467,16 @@
    statusBox.textContent = "要修正: " + result.errors.join(" / ");
   } else if (result.maxLevel === "safe") {
    statusBox.className = "status safe";
-   statusBox.textContent = "使いやすそうです。";
+   statusBox.textContent = "文字化けしなさそうです。";
   } else if (result.maxLevel === "reported") {
    statusBox.className = "status reported";
-   statusBox.textContent = "通りやすそうです。";
+   statusBox.textContent = "たぶん見えます。";
   } else if (result.maxLevel === "single") {
    statusBox.className = "status single";
-   statusBox.textContent = "少しクセがあります。";
+   statusBox.textContent = "試して確認してね。";
   } else {
    statusBox.className = "status risk";
-   statusBox.textContent = "文字化けするかもしれません。";
+   statusBox.textContent = "PC版で□や?になるかも。";
   }
   }
 
